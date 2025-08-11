@@ -25,7 +25,11 @@ const Index: React.FC = () => {
       showSuccess("Job description rewritten successfully!");
     } catch (error) {
       console.error("Error during rewrite:", error);
-      showError("Failed to rewrite job description. Please try again.");
+      if (error instanceof Error && error.message === "TooManyRequestsError") {
+        showError("It looks like there are too many rewrite requests on the server. Please try again in 2-5 minutes.", 60000); // 60 seconds
+      } else {
+        showError("Failed to rewrite job description. Please try again.");
+      }
     } finally {
       setIsLoading(false);
       if (toastId) {

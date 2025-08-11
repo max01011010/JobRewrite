@@ -25,83 +25,106 @@ ${jobDescription}
 
 Rewritten Job Description:`;
 
-  try {
-    const response = await fetch(
-      API_URL,
-      {
-        headers: {
-          Authorization: `Bearer ${HF_ACCESS_TOKEN}`,
-          "Content-Type": "application/json",
-        },
-        method: "POST",
-        body: JSON.stringify({
-          model: MODEL_NAME,
-          messages: [
-            {
-              role: "user",
-              content: promptContent,
-            },
-          ],
-          parameters: {
-            max_new_tokens: 500,
-            temperature: 0.7,
-            do_sample: true,
+  const MAX_RETRIES = 1; // One retry means two attempts in total
+  const RETRY_DELAY_MS = 30000; // 30 seconds
+
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      const response = await fetch(
+        API_URL,
+        {
+          headers: {
+            Authorization: `Bearer ${HF_ACCESS_TOKEN}`,
+            "Content-Type": "application/json",
           },
-        }),
-      }
-    );
+          method: "POST",
+          body: JSON.stringify({
+            model: MODEL_NAME,
+            messages: [
+              {
+                role: "user",
+                content: promptContent,
+              },
+            ],
+            parameters: {
+              max_new_tokens: 500,
+              temperature: 0.7,
+              do_sample: true,
+            },
+          }),
+        }
+      );
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error("Hugging Face API error:", errorData);
-      throw new Error(errorData.error || "Failed to fetch rewritten text from AI.");
-    }
-
-    const result = await response.json();
-    if (result && result.choices && result.choices.length > 0 && result.choices[0].message && result.choices[0].message.content) {
-      let rawRewrittenText = result.choices[0].message.content.trim();
-
-      // Remove the "Rewritten Job Description:" prefix if it exists
-      const prefix = "Rewritten Job Description:";
-      if (rawRewrittenText.startsWith(prefix)) {
-        rawRewrittenText = rawRewrittenText.substring(prefix.length).trim();
-      }
-
-      // Remove any text enclosed in square brackets (e.g., [Role Name])
-      rawRewrittenText = rawRewrittenText.replace(/\[.*?\]/g, '').trim();
-
-      // Split into lines and filter to keep only the structured parts
-      const lines = rawRewrittenText.split('\n').map(line => line.trim()).filter(line => line.length > 0);
-      let filteredLines: string[] = [];
-      let foundRoleTitle = false;
-
-      for (const line of lines) {
-        if (line.startsWith("Role Title:")) {
-          foundRoleTitle = true;
-          filteredLines.push(line.replace("Role Title:", "").trim());
-        } else if (foundRoleTitle && line.startsWith("Dates of Employment:")) {
-          let datePart = line.replace("Dates of Employment:", "").trim();
-          if (datePart === "") {
-            filteredLines.push("[MM/DD/YYYY] - [MM/DD/YYYY]");
-          } else {
-            filteredLines.push(datePart);
-          }
-        } else if (foundRoleTitle && line.startsWith("-")) {
-          filteredLines.push(line);
-        } else if (foundRoleTitle) {
-          // If we've found the role title and now encounter a line that's not
-          // Dates of Employment or a bullet point, it's likely the end of the
-          // desired section or unwanted text. Stop processing.
-          break;
+      if (response.status === 429) {
+        if (attempt < MAX_RETRIES) {
+          console.warn(`Attempt ${attempt + 1}: Received 429 Too Many Requests. Retrying in ${RETRY_DELAY_MS / 1000} seconds...`);
+          await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS));
+          continue; // Retry the request
+        } else {
+          // Last attempt failed with 429
+          throw new Error("TooManyRequestsError"); // Custom error type to distinguish
         }
       }
 
-      return filteredLines.join('\n');
-    } else {
-      throw new Error("Invalid response from AI model.");
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Hugging Face API error:", errorData);
+        throw new Error(errorData.error || "Failed to fetch rewritten text from AI.");
+      }
+
+      const result = await response.json();
+      if (result && result.choices && result.choices.length > 0 && result.choices[0].message && result.choices[0].message.content) {
+        let rawRewrittenText = result.choices[0].message.content.trim();
+
+        // Remove the "Rewritten Job Description:" prefix if it exists
+        const prefix = "Rewritten Job Description:";
+        if (rawRewrittenText.startsWith(prefix)) {
+          rawRewrittenText = rawRewrittenText.substring(prefix.length).trim();
+        }
+
+        // Remove any text enclosed in square brackets (e.g., [Role Name])
+        rawRewrittenText = rawRewrittenText.replace(/\[.*?\]/g, '').trim();
+
+        // Split into lines and filter to keep only the structured parts
+        const lines = rawRewrittenText.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+        let filteredLines: string[] = [];
+        let foundRoleTitle = false;
+
+        for (const line of lines) {
+          if (line.startsWith("Role Title:")) {
+            foundRoleTitle = true;
+            filteredLines.push(line.replace("Role Title:", "").trim());
+          } else if (foundRoleTitle && line.startsWith("Dates of Employment:")) {
+            let datePart = line.replace("Dates of Employment:", "").trim();
+            if (datePart === "") {
+              filteredLines.push("[MM/DD/YYYY] - [MM/DD/YYYY]");
+            } else {
+              filteredLines.push(datePart);
+            }
+          } else if (foundRoleTitle && line.startsWith("-")) {
+            filteredLines.push(line);
+          } else if (foundRoleTitle) {
+            // If we've found the role title and now encounter a line that's not
+            // Dates of Employment or a bullet point, it's likely the end of the
+            // desired section or unwanted text. Stop processing.
+            break;
+          }
+        }
+
+        return filteredLines.join('\n');
+      } else {
+        throw new Error("Invalid response from AI model.");
+      }
+    } catch (error) {
+      // If it's a "TooManyRequestsError" from the last attempt, re-throw it
+      if (error instanceof Error && error.message === "TooManyRequestsError") {
+        throw error;
+      }
+      // For other errors, re-throw immediately without retrying
+      console.error("Error during API call:", error);
+      throw error;
     }
-  } catch (error) {
-    console.error("Error rewriting job description:", error);
-    throw error;
   }
+  // This part should ideally not be reached if MAX_RETRIES is handled correctly
+  throw new Error("Failed to rewrite job description after multiple attempts.");
 }
