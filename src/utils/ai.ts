@@ -59,7 +59,39 @@ Rewritten Job Description:`;
 
     const result = await response.json();
     if (result && result.choices && result.choices.length > 0 && result.choices[0].message && result.choices[0].message.content) {
-      return result.choices[0].message.content.trim();
+      let rawRewrittenText = result.choices[0].message.content.trim();
+
+      // Remove the "Rewritten Job Description:" prefix if it exists
+      const prefix = "Rewritten Job Description:";
+      if (rawRewrittenText.startsWith(prefix)) {
+        rawRewrittenText = rawRewrittenText.substring(prefix.length).trim();
+      }
+
+      // Remove any text enclosed in square brackets (e.g., [Role Name])
+      rawRewrittenText = rawRewrittenText.replace(/\[.*?\]/g, '').trim();
+
+      // Split into lines and filter to keep only the structured parts
+      const lines = rawRewrittenText.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+      let filteredLines: string[] = [];
+      let foundRoleTitle = false;
+
+      for (const line of lines) {
+        if (line.startsWith("Role Title:")) {
+          foundRoleTitle = true;
+          filteredLines.push(line);
+        } else if (foundRoleTitle && line.startsWith("Dates of Employment:")) {
+          filteredLines.push(line);
+        } else if (foundRoleTitle && line.startsWith("-")) {
+          filteredLines.push(line);
+        } else if (foundRoleTitle) {
+          // If we've found the role title and now encounter a line that's not
+          // Dates of Employment or a bullet point, it's likely the end of the
+          // desired section or unwanted text. Stop processing.
+          break;
+        }
+      }
+
+      return filteredLines.join('\n');
     } else {
       throw new Error("Invalid response from AI model.");
     }
