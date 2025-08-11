@@ -17,7 +17,7 @@ const Index: React.FC = () => {
     }
 
     setIsLoading(true);
-    let toastId: string | undefined;
+    let toastId: string | number | undefined; // Changed type to include number
     try {
       toastId = showLoading("Rewriting job description...");
       const rewrittenText = await rewriteJobDescription(jobDescription);
