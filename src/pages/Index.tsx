@@ -39,7 +39,7 @@ const Index: React.FC = () => {
       showError("Nothing to copy. Please rewrite a job description first.");
       return;
     }
-    navigator.clipboard.write.text(rewrittenResume);
+    navigator.clipboard.writeText(rewrittenResume);
     showSuccess("Rewritten resume copied to clipboard!");
   };
 
@@ -53,10 +53,10 @@ const Index: React.FC = () => {
           </div>
           <div className="gap-1 flex flex-1 w-full">
             <div className="layout-content-container flex flex-col flex-1">
-              <h3 className="text-app-dark-text tracking-light text-2xl font-bold leading-tight px-4 text-center pb-2 pt-5">Job Description</h3>
+              <h3 className="text-app-dark-text tracking-light text-2xl font-bold leading-tight px-4 text-center pb-2 pt-5">Previous Role</h3>
               <div className="flex flex-wrap items-end gap-4 px-4 py-3">
                 <JobTextarea
-                  placeholder="Enter job description here..."
+                  placeholder="Enter one of your previous roles listed in your resume or the job description of your previous role."
                   value={jobDescription}
                   onChange={(e) => setJobDescription(e.target.value)}
                   disabled={isLoading}
