@@ -4,6 +4,7 @@ import JobTextarea from '@/components/JobTextarea';
 import { Button } from '@/components/ui/button'; // Using shadcn Button
 import { rewriteJobDescription } from '@/utils/ai';
 import { showLoading, showSuccess, showError, dismissToast } from '@/utils/toast';
+import ERNIEAttribution from '@/components/ERNIEAttribution'; // Import the new component
 
 const Index: React.FC = () => {
   const [jobDescription, setJobDescription] = useState<string>('');
@@ -98,6 +99,7 @@ const Index: React.FC = () => {
               </div>
             </div>
           </div>
+          <ERNIEAttribution /> {/* Add the attribution component here */}
         </div>
       </div>
     </div>
