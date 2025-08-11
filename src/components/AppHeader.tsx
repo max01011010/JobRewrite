@@ -18,7 +18,7 @@ const AppHeader: React.FC = () => {
       </div>
       <div className="flex flex-1 justify-end gap-8">
         <div className="flex items-center gap-9">
-          <a className="text-app-dark-text text-sm font-medium leading-normal" href="#">Made for free by Max A</a>
+          <a className="text-app-dark-text text-sm font-medium leading-normal" href="https://www.maxabardo.work/" target="_blank" rel="noopener noreferrer">Made for free by Max A</a>
         </div>
       </div>
     </header>
