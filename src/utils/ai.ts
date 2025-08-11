@@ -18,7 +18,7 @@ Rewritten Job Description:`;
 
   try {
     const response = await fetch(
-      `https://api-inference.huggingface.co/models/${MODEL_NAME}`,
+      `https://router.huggingface.co/v1/models/${MODEL_NAME}`, // Updated URL here
       {
         headers: {
           Authorization: `Bearer ${HF_ACCESS_TOKEN}`,
