@@ -10,7 +10,15 @@ export async function rewriteJobDescription(jobDescription: string): Promise<str
     throw new Error("Hugging Face access token is missing.");
   }
 
-  const promptContent = `Rewrite this job description to create an ATS optimized resume job history entry. The entry must have the role name, dates of employment (or placeholder dates), and bullet point list that showcase quantifiable results from the role that align with the job description.
+  const promptContent = `Rewrite the following job description into an ATS-optimized resume job history entry. Your output must *strictly* follow this format:
+Role Title: [Role Name]
+Dates of Employment: [Start Date] – [End Date] (e.g., 'Jan 2020 – Dec 2023')
+- [Quantifiable bullet point 1]
+- [Quantifiable bullet point 2]
+- [Quantifiable bullet point 3]
+...
+
+Focus on quantifiable results relevant to the job description. Do not include any additional text, explanations, or conversational elements.
 
 Job Description:
 ${jobDescription}
