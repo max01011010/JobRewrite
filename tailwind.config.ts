@@ -62,6 +62,12 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        // Custom colors from the provided HTML
+        'app-dark-text': '#121517',
+        'app-light-border': '#f1f3f4',
+        'app-blue': '#236ea4',
+        'app-input-border': '#dce1e4',
+        'app-placeholder': '#667885',
       },
       borderRadius: {
         lg: "var(--radius)",
