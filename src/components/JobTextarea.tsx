@@ -21,8 +21,8 @@ const JobTextarea: React.FC<JobTextareaProps> = ({ label, value, ...props }) => 
       {label && <span className="mb-1 text-sm font-medium text-app-dark-text">{label}</span>}
       <textarea
         ref={textareaRef}
-        className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded text-app-dark-text focus:outline-0 focus:ring-0 border border-app-input-border bg-white focus:border-app-input-border placeholder:text-app-placeholder p-[15px] text-base font-normal leading-normal"
-        value={value} // Ensure value is passed to the textarea
+        className="flex w-full min-w-0 flex-1 resize-none rounded text-app-dark-text focus:outline-0 focus:ring-0 border border-app-input-border bg-white focus:border-app-input-border placeholder:text-app-placeholder p-[15px] text-base font-normal leading-normal"
+        value={value}
         {...props}
       ></textarea>
     </label>
