@@ -2,7 +2,7 @@ import { showError } from "./toast";
 
 const HF_ACCESS_TOKEN = import.meta.env.VITE_HF_ACCESS_TOKEN;
 const API_URL = "https://router.huggingface.co/v1/chat/completions";
-const MODEL_NAME = "zai-org/GLM-4.5:novita";
+const MODEL_NAME = "baidu/ERNIE-4.5-VL-424B-A47B-Base-PT:novita";
 
 export async function rewriteJobDescription(jobDescription: string): Promise<string> {
   if (!HF_ACCESS_TOKEN) {
