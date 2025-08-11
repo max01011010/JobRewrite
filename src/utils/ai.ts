@@ -9,7 +9,7 @@ export async function rewriteJobDescription(jobDescription: string): Promise<str
     throw new Error("Hugging Face access token is missing.");
   }
 
-  const prompt = `You are an expert resume writer. Rewrite the following job description to make it sound more appealing and professional for a resume. Focus on action verbs and quantifiable achievements where possible.
+  const prompt = `Rewrite this job description to create an ATS optimized resume job history entry. The entry must have the role name, dates of employment (or placeholder dates), and bullet point list that showcase quantifiable results from the role that align with the job description.
 
 Job Description:
 ${jobDescription}
