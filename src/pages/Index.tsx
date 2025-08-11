@@ -39,7 +39,7 @@ const Index: React.FC = () => {
       showError("Nothing to copy. Please rewrite a job description first.");
       return;
     }
-    navigator.clipboard.writeText(rewrittenResume);
+    navigator.clipboard.write.text(rewrittenResume);
     showSuccess("Rewritten resume copied to clipboard!");
   };
 
@@ -47,45 +47,50 @@ const Index: React.FC = () => {
     <div className="relative flex size-full min-h-screen flex-col bg-white group/design-root overflow-x-hidden" style={{ fontFamily: 'Inter, "Noto Sans", sans-serif' }}>
       <div className="layout-container flex h-full grow flex-col">
         <AppHeader />
-        <div className="gap-1 px-6 flex flex-1 py-5"> {/* Removed justify-center */}
-          <div className="layout-content-container flex flex-col flex-1"> {/* Changed w-80 to flex-1 */}
-            <h3 className="text-app-dark-text tracking-light text-2xl font-bold leading-tight px-4 text-center pb-2 pt-5">Job Description</h3>
-            <div className="flex flex-wrap items-end gap-4 px-4 py-3"> {/* Removed max-w-[600px] */}
-              <JobTextarea
-                placeholder="Enter job description here..."
-                value={jobDescription}
-                onChange={(e) => setJobDescription(e.target.value)}
-                disabled={isLoading}
-              />
-            </div>
-            <div className="flex px-4 py-3 justify-center">
-              <Button
-                onClick={handleRewrite}
-                disabled={isLoading}
-                className="flex min-w-[250px] max-w-[600px] cursor-pointer items-center justify-center overflow-hidden rounded h-10 px-4 bg-app-blue text-white text-sm font-bold leading-normal tracking-[0.015em]"
-              >
-                <span className="truncate">{isLoading ? "Rewriting..." : "Rewrite"}</span>
-              </Button>
-            </div>
+        <div className="flex flex-col items-center px-6 py-5">
+          <div className="w-full max-w-[1000px] border border-solid border-gray-300 rounded-md p-4 mb-6 bg-[#1E91D6] text-white text-center">
+            <p className="text-base font-medium">Note: Please replace the placeholder metrics provided to align with real data you've achieved and gathered.</p>
           </div>
-          <div className="layout-content-container flex flex-col flex-1"> {/* Removed max-w-[600px] */}
-            <h3 className="text-app-dark-text tracking-light text-2xl font-bold leading-tight px-4 text-center pb-2 pt-5">Rewritten Resume</h3>
-            <div className="flex flex-wrap items-end gap-4 px-4 py-3"> {/* Removed max-w-[600px] */}
-              <JobTextarea
-                disabled
-                value={rewrittenResume}
-                placeholder="Rewritten resume will appear here..."
-              />
-            </div>
-            <div className="flex justify-center">
-              <div className="flex flex-1 gap-3 flex-wrap px-4 py-3 max-w-[480px] justify-center">
+          <div className="gap-1 flex flex-1 w-full">
+            <div className="layout-content-container flex flex-col flex-1">
+              <h3 className="text-app-dark-text tracking-light text-2xl font-bold leading-tight px-4 text-center pb-2 pt-5">Job Description</h3>
+              <div className="flex flex-wrap items-end gap-4 px-4 py-3">
+                <JobTextarea
+                  placeholder="Enter job description here..."
+                  value={jobDescription}
+                  onChange={(e) => setJobDescription(e.target.value)}
+                  disabled={isLoading}
+                />
+              </div>
+              <div className="flex px-4 py-3 justify-center">
                 <Button
-                  onClick={handleCopy}
-                  disabled={!rewrittenResume.trim()}
-                  className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded h-10 px-4 bg-app-light-border text-app-dark-text text-sm font-bold leading-normal tracking-[0.015em] grow"
+                  onClick={handleRewrite}
+                  disabled={isLoading}
+                  className="flex min-w-[250px] max-w-[600px] cursor-pointer items-center justify-center overflow-hidden rounded h-10 px-4 bg-app-blue text-white text-sm font-bold leading-normal tracking-[0.015em]"
                 >
-                  <span className="truncate">Copy</span>
+                  <span className="truncate">{isLoading ? "Rewriting..." : "Rewrite"}</span>
                 </Button>
+              </div>
+            </div>
+            <div className="layout-content-container flex flex-col flex-1">
+              <h3 className="text-app-dark-text tracking-light text-2xl font-bold leading-tight px-4 text-center pb-2 pt-5">Rewritten Resume</h3>
+              <div className="flex flex-wrap items-end gap-4 px-4 py-3">
+                <JobTextarea
+                  disabled
+                  value={rewrittenResume}
+                  placeholder="Rewritten resume will appear here..."
+                />
+              </div>
+              <div className="flex justify-center">
+                <div className="flex flex-1 gap-3 flex-wrap px-4 py-3 max-w-[480px] justify-center">
+                  <Button
+                    onClick={handleCopy}
+                    disabled={!rewrittenResume.trim()}
+                    className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded h-10 px-4 bg-app-light-border text-app-dark-text text-sm font-bold leading-normal tracking-[0.015em] grow"
+                  >
+                    <span className="truncate">Copy</span>
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
