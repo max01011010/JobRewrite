@@ -2,22 +2,45 @@ import React, { useState } from 'react';
 import AppHeader from '@/components/AppHeader';
 import JobTextarea from '@/components/JobTextarea';
 import { Button } from '@/components/ui/button'; // Using shadcn Button
+import { rewriteJobDescription } from '@/utils/ai';
+import { showLoading, showSuccess, showError, dismissToast } from '@/utils/toast';
 
 const Index: React.FC = () => {
   const [jobDescription, setJobDescription] = useState<string>('');
   const [rewrittenResume, setRewrittenResume] = useState<string>('');
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const handleRewrite = () => {
-    // Placeholder for rewrite logic
-    console.log('Rewriting job description:', jobDescription);
-    setRewrittenResume('This is a rewritten version of the job description.');
+  const handleRewrite = async () => {
+    if (!jobDescription.trim()) {
+      showError("Please enter a job description to rewrite.");
+      return;
+    }
+
+    setIsLoading(true);
+    let toastId: string | undefined;
+    try {
+      toastId = showLoading("Rewriting job description...");
+      const rewrittenText = await rewriteJobDescription(jobDescription);
+      setRewrittenResume(rewrittenText);
+      showSuccess("Job description rewritten successfully!");
+    } catch (error) {
+      console.error("Error during rewrite:", error);
+      showError("Failed to rewrite job description. Please try again.");
+    } finally {
+      setIsLoading(false);
+      if (toastId) {
+        dismissToast(toastId);
+      }
+    }
   };
 
   const handleCopy = () => {
-    // Placeholder for copy logic
+    if (!rewrittenResume.trim()) {
+      showError("Nothing to copy. Please rewrite a job description first.");
+      return;
+    }
     navigator.clipboard.writeText(rewrittenResume);
-    console.log('Copied rewritten resume:', rewrittenResume);
-    // You might want to add a toast notification here
+    showSuccess("Rewritten resume copied to clipboard!");
   };
 
   return (
@@ -32,14 +55,16 @@ const Index: React.FC = () => {
                 placeholder="Enter job description here..."
                 value={jobDescription}
                 onChange={(e) => setJobDescription(e.target.value)}
+                disabled={isLoading}
               />
             </div>
             <div className="flex px-4 py-3 justify-center">
               <Button
                 onClick={handleRewrite}
+                disabled={isLoading}
                 className="flex min-w-[250px] max-w-[600px] cursor-pointer items-center justify-center overflow-hidden rounded h-10 px-4 bg-app-blue text-white text-sm font-bold leading-normal tracking-[0.015em]"
               >
-                <span className="truncate">Rewrite</span>
+                <span className="truncate">{isLoading ? "Rewriting..." : "Rewrite"}</span>
               </Button>
             </div>
           </div>
@@ -56,6 +81,7 @@ const Index: React.FC = () => {
               <div className="flex flex-1 gap-3 flex-wrap px-4 py-3 max-w-[480px] justify-center">
                 <Button
                   onClick={handleCopy}
+                  disabled={!rewrittenResume.trim()}
                   className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded h-10 px-4 bg-app-light-border text-app-dark-text text-sm font-bold leading-normal tracking-[0.015em] grow"
                 >
                   <span className="truncate">Copy</span>
