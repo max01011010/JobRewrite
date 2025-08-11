@@ -4,6 +4,7 @@ import JobTextarea from '@/components/JobTextarea';
 import { Button } from '@/components/ui/button'; // Using shadcn Button
 import { rewriteJobDescription } from '@/utils/ai';
 import { showLoading, showSuccess, showError, dismissToast } from '@/utils/toast';
+import AppFooter from '@/components/AppFooter'; // Import the footer component
 
 const Index: React.FC = () => {
   const [jobDescription, setJobDescription] = useState<string>('');
@@ -99,6 +100,7 @@ const Index: React.FC = () => {
             </div>
           </div>
         </div>
+        <AppFooter /> {/* Place the footer here, inside the main page content */}
       </div>
     </div>
   );
