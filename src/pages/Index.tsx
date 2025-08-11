@@ -17,7 +17,7 @@ const Index: React.FC = () => {
     }
 
     setIsLoading(true);
-    let toastId: string | number | undefined; // Changed type to include number
+    let toastId: string | number | undefined;
     try {
       toastId = showLoading("Rewriting job description...");
       const rewrittenText = await rewriteJobDescription(jobDescription);
@@ -47,10 +47,10 @@ const Index: React.FC = () => {
     <div className="relative flex size-full min-h-screen flex-col bg-white group/design-root overflow-x-hidden" style={{ fontFamily: 'Inter, "Noto Sans", sans-serif' }}>
       <div className="layout-container flex h-full grow flex-col">
         <AppHeader />
-        <div className="gap-1 px-6 flex flex-1 justify-center py-5">
-          <div className="layout-content-container flex flex-col w-80">
+        <div className="gap-1 px-6 flex flex-1 py-5"> {/* Removed justify-center */}
+          <div className="layout-content-container flex flex-col flex-1"> {/* Changed w-80 to flex-1 */}
             <h3 className="text-app-dark-text tracking-light text-2xl font-bold leading-tight px-4 text-center pb-2 pt-5">Job Description</h3>
-            <div className="flex max-w-[600px] flex-wrap items-end gap-4 px-4 py-3">
+            <div className="flex flex-wrap items-end gap-4 px-4 py-3"> {/* Removed max-w-[600px] */}
               <JobTextarea
                 placeholder="Enter job description here..."
                 value={jobDescription}
@@ -68,9 +68,9 @@ const Index: React.FC = () => {
               </Button>
             </div>
           </div>
-          <div className="layout-content-container flex flex-col max-w-[600px] flex-1">
+          <div className="layout-content-container flex flex-col flex-1"> {/* Removed max-w-[600px] */}
             <h3 className="text-app-dark-text tracking-light text-2xl font-bold leading-tight px-4 text-center pb-2 pt-5">Rewritten Resume</h3>
-            <div className="flex max-w-[600px] flex-wrap items-end gap-4 px-4 py-3">
+            <div className="flex flex-wrap items-end gap-4 px-4 py-3"> {/* Removed max-w-[600px] */}
               <JobTextarea
                 disabled
                 value={rewrittenResume}
