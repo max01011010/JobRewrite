@@ -73,12 +73,12 @@ const Index: React.FC = () => {
               </div>
             </div>
             <div className="layout-content-container flex flex-col flex-1">
-              <h3 className="text-app-dark-text tracking-light text-2xl font-bold leading-tight px-4 text-center pb-2 pt-5">Rewritten Resume</h3>
+              <h3 className="text-app-dark-text tracking-light text-2xl font-bold leading-tight px-4 text-center pb-2 pt-5">Rewritten Role</h3>
               <div className="flex flex-wrap items-end gap-4 px-4 py-3">
                 <JobTextarea
                   disabled
                   value={rewrittenResume}
-                  placeholder="Rewritten resume will appear here..."
+                  placeholder="Your rewritten role will appear here."
                 />
               </div>
               <div className="flex justify-center">
