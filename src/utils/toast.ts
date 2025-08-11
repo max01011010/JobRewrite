@@ -12,6 +12,6 @@ export const showLoading = (message: string) => {
   return toast.loading(message);
 };
 
-export const const dismissToast = (toastId: string | number) => {
+export const dismissToast = (toastId: string | number) => {
   toast.dismiss(toastId);
 };
