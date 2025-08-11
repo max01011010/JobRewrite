@@ -1,7 +1,8 @@
 import { showError } from "./toast";
 
 const HF_ACCESS_TOKEN = import.meta.env.VITE_HF_ACCESS_TOKEN;
-const MODEL_NAME = "zai-org/GLM-4.5"; // Updated model name
+const API_URL = "https://router.huggingface.co/v1/chat/completions";
+const MODEL_NAME = "zai-org/GLM-4.5:novita";
 
 export async function rewriteJobDescription(jobDescription: string): Promise<string> {
   if (!HF_ACCESS_TOKEN) {
@@ -9,7 +10,7 @@ export async function rewriteJobDescription(jobDescription: string): Promise<str
     throw new Error("Hugging Face access token is missing.");
   }
 
-  const prompt = `Rewrite this job description to create an ATS optimized resume job history entry. The entry must have the role name, dates of employment (or placeholder dates), and bullet point list that showcase quantifiable results from the role that align with the job description.
+  const promptContent = `Rewrite this job description to create an ATS optimized resume job history entry. The entry must have the role name, dates of employment (or placeholder dates), and bullet point list that showcase quantifiable results from the role that align with the job description.
 
 Job Description:
 ${jobDescription}
@@ -18,7 +19,7 @@ Rewritten Job Description:`;
 
   try {
     const response = await fetch(
-      `https://router.huggingface.co/v1/models/${MODEL_NAME}`,
+      API_URL,
       {
         headers: {
           Authorization: `Bearer ${HF_ACCESS_TOKEN}`,
@@ -26,7 +27,13 @@ Rewritten Job Description:`;
         },
         method: "POST",
         body: JSON.stringify({
-          inputs: prompt,
+          model: MODEL_NAME,
+          messages: [
+            {
+              role: "user",
+              content: promptContent,
+            },
+          ],
           parameters: {
             max_new_tokens: 500,
             temperature: 0.7,
@@ -43,12 +50,8 @@ Rewritten Job Description:`;
     }
 
     const result = await response.json();
-    // Assuming the response structure is an array with a 'generated_text' field
-    if (result && result.length > 0 && result[0].generated_text) {
-      // Extract only the rewritten part, removing the prompt
-      const generatedText = result[0].generated_text;
-      const rewrittenPart = generatedText.replace(prompt, '').trim();
-      return rewrittenPart;
+    if (result && result.choices && result.choices.length > 0 && result.choices[0].message && result.choices[0].message.content) {
+      return result.choices[0].message.content.trim();
     } else {
       throw new Error("Invalid response from AI model.");
     }
