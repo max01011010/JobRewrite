@@ -7,7 +7,7 @@ const AppHeader: React.FC = () => {
         <div className="size-4 flex items-center justify-center">
           <img src="/pencil-icon.png" alt="JobRewrite Icon" className="h-full w-full object-contain" />
         </div>
-        <h2 className="text-app-dark-text text-lg font-bold leading-tight tracking-[-0.015em]">JobRewrite?</h2>
+        <h2 className="text-app-dark-text text-lg font-bold leading-tight tracking-[-0.015em]">JobRewrite</h2>
       </div>
       <div className="flex flex-1 justify-end gap-8">
         <div className="flex items-center gap-9">
