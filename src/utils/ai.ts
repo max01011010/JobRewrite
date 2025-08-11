@@ -1,7 +1,7 @@
 import { showError } from "./toast";
 
 const HF_ACCESS_TOKEN = import.meta.env.VITE_HF_ACCESS_TOKEN;
-const MODEL_NAME = "deepseek-ai/DeepSeek-R1";
+const MODEL_NAME = "deepseek-ai/DeepSeek-R1:novita"; // Updated model name
 
 export async function rewriteJobDescription(jobDescription: string): Promise<string> {
   if (!HF_ACCESS_TOKEN) {
