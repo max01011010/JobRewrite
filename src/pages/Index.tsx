@@ -47,14 +47,14 @@ const Index: React.FC = () => {
     <div className="relative flex size-full min-h-screen flex-col bg-white group/design-root overflow-x-hidden" style={{ fontFamily: 'Inter, "Noto Sans", sans-serif' }}>
       <div className="layout-container flex h-full grow flex-col">
         <AppHeader />
-        <div className="flex flex-col items-center px-6 py-5 flex-1"> {/* Added flex-1 here */}
+        <div className="flex flex-col items-center px-6 py-5">
           <div className="w-full max-w-[1000px] border border-solid border-gray-300 rounded-md p-4 mb-6 bg-[#1E91D6] text-white text-center">
             <p className="text-base font-medium">Note: Please replace the placeholder metrics provided to align with real data you've achieved and gathered.</p>
           </div>
           <div className="gap-1 flex flex-1 w-full">
             <div className="layout-content-container flex flex-col flex-1">
               <h3 className="text-app-dark-text tracking-light text-2xl font-bold leading-tight px-4 text-center pb-2 pt-5">Previous Role</h3>
-              <div className="flex flex-wrap items-end gap-4 px-4 py-3 flex-1"> {/* Added flex-1 here */}
+              <div className="flex flex-wrap items-end gap-4 px-4 py-3">
                 <JobTextarea
                   placeholder="Enter one of your previous roles listed in your resume or the job description of your previous role."
                   value={jobDescription}
@@ -74,7 +74,7 @@ const Index: React.FC = () => {
             </div>
             <div className="layout-content-container flex flex-col flex-1">
               <h3 className="text-app-dark-text tracking-light text-2xl font-bold leading-tight px-4 text-center pb-2 pt-5">Rewritten Role</h3>
-              <div className="flex flex-wrap items-end gap-4 px-4 py-3 flex-1"> {/* Added flex-1 here */}
+              <div className="flex flex-wrap items-end gap-4 px-4 py-3">
                 <JobTextarea
                   disabled
                   value={rewrittenResume}

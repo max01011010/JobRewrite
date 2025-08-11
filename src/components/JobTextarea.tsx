@@ -1,16 +1,29 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 
 interface JobTextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string;
 }
 
 const JobTextarea: React.FC<JobTextareaProps> = ({ label, value, ...props }) => {
+  // The ref is no longer needed for auto-resizing, but can be kept if other functionalities might use it.
+  // For now, I'll remove the useEffect that was handling auto-resizing.
+  // const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // useEffect(() => {
+  //   if (textareaRef.current) {
+  //     // Reset height to auto to correctly calculate scrollHeight
+  //     textareaRef.current.style.height = 'auto';
+  //     // Set height to scrollHeight
+  //     textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+  //   }
+  // }, [value]); // Re-run effect when the value changes
+
   return (
     <label className="flex flex-col min-w-40 flex-1">
       {label && <span className="mb-1 text-sm font-medium text-app-dark-text">{label}</span>}
       <textarea
-        className="w-full min-h-[150px] h-full overflow-y-auto resize-none rounded text-app-dark-text focus:outline-0 focus:ring-0 border border-app-input-border bg-white focus:border-app-input-border placeholder:text-app-placeholder p-[15px] text-base font-normal leading-normal"
-        style={{ maxHeight: 'calc(100vh - 250px)' }} // Adjusted max-height to ensure button visibility
+        // ref={textareaRef} // Removed ref as auto-resizing is no longer desired
+        className="w-full min-h-[150px] max-h-80 overflow-y-auto resize-none rounded text-app-dark-text focus:outline-0 focus:ring-0 border border-app-input-border bg-white focus:border-app-input-border placeholder:text-app-placeholder p-[15px] text-base font-normal leading-normal"
         value={value}
         {...props}
       ></textarea>
