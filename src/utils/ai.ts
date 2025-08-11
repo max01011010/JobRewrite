@@ -1,7 +1,7 @@
 import { showError } from "./toast";
 
 const HF_ACCESS_TOKEN = import.meta.env.VITE_HF_ACCESS_TOKEN;
-const MODEL_NAME = "deepseek-ai/DeepSeek-R1"; // Corrected model name
+const MODEL_NAME = "zai-org/GLM-4.5"; // Updated model name
 
 export async function rewriteJobDescription(jobDescription: string): Promise<string> {
   if (!HF_ACCESS_TOKEN) {
@@ -18,7 +18,7 @@ Rewritten Job Description:`;
 
   try {
     const response = await fetch(
-      `https://router.huggingface.co/v1/models/${MODEL_NAME}`, // Updated URL here
+      `https://router.huggingface.co/v1/models/${MODEL_NAME}`,
       {
         headers: {
           Authorization: `Bearer ${HF_ACCESS_TOKEN}`,
