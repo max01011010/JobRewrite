@@ -78,9 +78,14 @@ Rewritten Job Description:`;
       for (const line of lines) {
         if (line.startsWith("Role Title:")) {
           foundRoleTitle = true;
-          filteredLines.push(line);
+          filteredLines.push(line.replace("Role Title:", "").trim());
         } else if (foundRoleTitle && line.startsWith("Dates of Employment:")) {
-          filteredLines.push(line);
+          let datePart = line.replace("Dates of Employment:", "").trim();
+          if (datePart === "") {
+            filteredLines.push("[MM/DD/YYYY] - [MM/DD/YYYY]");
+          } else {
+            filteredLines.push(datePart);
+          }
         } else if (foundRoleTitle && line.startsWith("-")) {
           filteredLines.push(line);
         } else if (foundRoleTitle) {
