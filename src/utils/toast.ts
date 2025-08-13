@@ -4,7 +4,7 @@ export const showSuccess = (message: string) => {
   toast.success(message);
 };
 
-export const showError = (message: string, duration: number = 4000) => {
+export const showError = (message: string, duration: number = 30000) => { // Changed default duration to 30 seconds
   toast.error(message, { duration });
 };
 
