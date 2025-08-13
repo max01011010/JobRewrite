@@ -13,7 +13,7 @@ export class AuthClient {
 
   private async json<T>(path: string, init: RequestInit = {}): Promise<T> {
     const res = await fetch(this.base + path, {
-      credentials: "include", // send/receive HttpOnly cookie
+      credentials: "include", // This is already included!
       headers: {
         "Content-Type": "application/json",
         ...(init.headers || {}),
