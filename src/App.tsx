@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
-// Removed AppFooter import
+import ResumeAnalyzer from "./pages/ResumeAnalyzer"; // Import the new page
 
 const queryClient = new QueryClient();
 
@@ -18,11 +18,11 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/resume-analyzer" element={<ResumeAnalyzer />} /> {/* Add the new route */}
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
-        {/* Removed AppFooter usage */}
       </div>
     </TooltipProvider>
   </QueryClientProvider>
