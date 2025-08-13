@@ -14,6 +14,8 @@ import {
 import { analyzeResumeWithErnie } from '@/utils/ai';
 import { showLoading, showSuccess, showError, dismissToast } from '@/utils/toast';
 import { UploadCloud, Clipboard } from 'lucide-react';
+import AppHeader from '@/components/AppHeader'; // Import AppHeader
+import AppFooter from '@/components/AppFooter'; // Import AppFooter
 
 // New import for the file extraction service
 import { extractResumeText } from '@/utils/fileExtractionApi';
@@ -164,19 +166,7 @@ const ResumeAnalyzer: React.FC = () => {
   return (
     <div className="relative flex size-full min-h-screen flex-col bg-white group/design-root overflow-x-hidden" style={{ fontFamily: 'Inter, "Noto Sans", sans-serif' }}>
       <div className="layout-container flex h-full grow flex-col">
-        <header className="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-app-light-border px-10 py-3">
-          <div className="flex items-center gap-4 text-app-dark-text">
-            <div className="size-4 flex items-center justify-center">
-              <img src="/pencil-icon.png" alt="JobRewrite Icon" className="h-full w-full object-contain" />
-            </div>
-            <h2 className="text-app-dark-text text-lg font-bold leading-tight tracking-[-0.015em]">Resume Analyzer</h2>
-          </div>
-          <div className="flex flex-1 justify-end gap-8">
-            <div className="flex items-center gap-9">
-              <a className="text-app-dark-text text-sm font-medium leading-normal" href="https://www.maxabardo.work/" target="_blank" rel="noopener noreferrer">Made for free by Max A</a>
-            </div>
-          </div>
-        </header>
+        <AppHeader /> {/* Use the shared AppHeader component */}
 
         <div className="flex flex-col items-center px-6 py-5 flex-1">
           <div className="w-full max-w-[1000px] border border-solid border-gray-300 rounded-md p-4 mb-6 bg-[#1E91D6] text-white text-center">
@@ -275,21 +265,7 @@ const ResumeAnalyzer: React.FC = () => {
           )}
         </div>
 
-        <footer className="w-full py-2 text-center text-gray-500 dark:text-gray-400" style={{ fontSize: '9px' }}>
-          <p>
-            This app uses the ERNIE 4.5 model.
-            Citation: Baidu ERNIE Team, ERNIE 4.5 Technical Report, 2025.
-            <br />
-            <a
-              href="https://huggingface.co/baidu/ERNIE-4.5-21B-A3B-PT"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-app-blue hover:underline"
-            >
-              Learn more about ERNIE 4.5
-            </a>
-          </p>
-        </footer>
+        <AppFooter /> {/* Use the shared AppFooter component */}
       </div>
     </div>
   );
