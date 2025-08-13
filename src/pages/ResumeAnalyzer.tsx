@@ -3,7 +3,6 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useToast } from '@/hooks/use-toast';
 import {
   createResume,
   createJobDescription,
@@ -14,13 +13,13 @@ import {
 import { analyzeResumeWithErnie } from '@/utils/ai';
 import { showLoading, showSuccess, showError, dismissToast } from '@/utils/toast';
 import { UploadCloud, Clipboard } from 'lucide-react';
-import AppHeader from '@/components/AppHeader'; // Import AppHeader
-import AppFooter from '@/components/AppFooter'; // Import AppFooter
-
-// New import for the file extraction service
+import AppHeader from '@/components/AppHeader';
+import AppFooter from '@/components/AppFooter';
 import { extractResumeText } from '@/utils/fileExtractionApi';
+import { useAuth } from '@/hooks/use-auth'; // Import useAuth
 
 const ResumeAnalyzer: React.FC = () => {
+  const { user, isAuthenticated } = useAuth(); // Get user and isAuthenticated from auth context
   const [resumeInputMode, setResumeInputMode] = useState<'upload' | 'paste'>('upload');
   const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [resumeText, setResumeText] = useState<string>('');
@@ -65,6 +64,11 @@ const ResumeAnalyzer: React.FC = () => {
   }, []);
 
   const handleAnalyze = async () => {
+    if (!isAuthenticated || !user) {
+      showError("Please log in to analyze resumes.");
+      return;
+    }
+
     let currentResumeContent = '';
     let resumeTitle = "Pasted Resume";
 
@@ -111,14 +115,15 @@ const ResumeAnalyzer: React.FC = () => {
       const resumeResponse = await createResume({
         summary: currentResumeContent,
         title: resumeTitle,
-        user_profile_id: 1, // Placeholder user ID
+        user_profile_id: user.id, // Use authenticated user's ID
       });
 
       const jobDescriptionResponse = await createJobDescription({
-        company_name: "Unknown Company", // Placeholder
+        company_name: "User Input", // Placeholder
         description: jobDescription,
         title: "Job Description", // Placeholder
-        location: "Remote", // Placeholder
+        location: "N/A", // Placeholder
+        user_profile_id: user.id, // Use authenticated user's ID
       });
 
       // 2. Run analysis with ERNIE
@@ -128,7 +133,7 @@ const ResumeAnalyzer: React.FC = () => {
 
       // 3. Save analysis report, summary, and score to GibsonAI
       const analysisReportResponse = await createAnalysisReport({
-        analyzed_by: 1, // Placeholder user ID
+        analyzed_by: user.id, // Use authenticated user's ID
         job_description_id: jobDescriptionResponse.id,
         resume_id: resumeResponse.id,
       });
@@ -141,7 +146,7 @@ const ResumeAnalyzer: React.FC = () => {
       await createAnalysisScore({
         report_id: analysisReportResponse.id,
         score: analysisResult.score,
-        section: "Overall ATS Score", // Or break down by section if ERNIE provides it
+        section: "Overall ATS Score",
       });
 
       dismissToast(analysisToastId);
@@ -166,7 +171,7 @@ const ResumeAnalyzer: React.FC = () => {
   return (
     <div className="relative flex size-full min-h-screen flex-col bg-white group/design-root overflow-x-hidden" style={{ fontFamily: 'Inter, "Noto Sans", sans-serif' }}>
       <div className="layout-container flex h-full grow flex-col">
-        <AppHeader /> {/* Use the shared AppHeader component */}
+        <AppHeader />
 
         <div className="flex flex-col items-center px-6 py-5 flex-1">
           <div className="w-full max-w-[1000px] border border-solid border-gray-300 rounded-md p-4 mb-6 bg-[#1E91D6] text-white text-center">
@@ -179,10 +184,10 @@ const ResumeAnalyzer: React.FC = () => {
               <h3 className="text-app-dark-text tracking-light text-2xl font-bold leading-tight text-center">Your Resume</h3>
               <Tabs value={resumeInputMode} onValueChange={(value) => setResumeInputMode(value as 'upload' | 'paste')} className="w-full">
                 <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="upload">
+                  <TabsTrigger value="upload" disabled={!isAuthenticated}>
                     <UploadCloud className="mr-2 h-4 w-4" /> Upload File
                   </TabsTrigger>
-                  <TabsTrigger value="paste">
+                  <TabsTrigger value="paste" disabled={!isAuthenticated}>
                     <Clipboard className="mr-2 h-4 w-4" /> Paste Text
                   </TabsTrigger>
                 </TabsList>
@@ -203,7 +208,7 @@ const ResumeAnalyzer: React.FC = () => {
                       accept=".pdf,.doc,.docx"
                       onChange={handleFileChange}
                       className="hidden"
-                      disabled={isLoading}
+                      disabled={isLoading || !isAuthenticated}
                     />
                   </div>
                 </TabsContent>
@@ -213,7 +218,7 @@ const ResumeAnalyzer: React.FC = () => {
                     value={resumeText}
                     onChange={(e) => setResumeText(e.target.value)}
                     className="min-h-[200px] max-h-80 overflow-y-auto resize-none rounded text-app-dark-text focus:outline-0 focus:ring-0 border border-app-input-border bg-white focus:border-app-input-border placeholder:text-app-placeholder p-[15px] text-base font-normal leading-normal"
-                    disabled={isLoading}
+                    disabled={isLoading || !isAuthenticated}
                   />
                 </TabsContent>
               </Tabs>
@@ -227,7 +232,7 @@ const ResumeAnalyzer: React.FC = () => {
                 value={jobDescription}
                 onChange={(e) => setJobDescription(e.target.value)}
                 className="min-h-[200px] max-h-80 overflow-y-auto resize-none rounded text-app-dark-text focus:outline-0 focus:ring-0 border border-app-input-border bg-white focus:border-app-input-border placeholder:text-app-placeholder p-[15px] text-base font-normal leading-normal"
-                disabled={isLoading}
+                disabled={isLoading || !isAuthenticated}
               />
             </div>
           </div>
@@ -236,7 +241,7 @@ const ResumeAnalyzer: React.FC = () => {
           <div className="flex justify-center w-full max-w-[1000px] mt-8">
             <Button
               onClick={handleAnalyze}
-              disabled={isLoading || (resumeInputMode === 'upload' && !resumeFile) || (resumeInputMode === 'paste' && !resumeText.trim()) || !jobDescription.trim()}
+              disabled={isLoading || !isAuthenticated || (resumeInputMode === 'upload' && !resumeFile) || (resumeInputMode === 'paste' && !resumeText.trim()) || !jobDescription.trim()}
               className="flex min-w-[250px] max-w-[600px] cursor-pointer items-center justify-center overflow-hidden rounded h-10 px-4 bg-app-blue text-white text-sm font-bold leading-normal tracking-[0.015em]"
             >
               <span className="truncate">{isLoading ? "Analyzing..." : "Analyze Resume"}</span>
@@ -265,7 +270,7 @@ const ResumeAnalyzer: React.FC = () => {
           )}
         </div>
 
-        <AppFooter /> {/* Use the shared AppFooter component */}
+        <AppFooter />
       </div>
     </div>
   );

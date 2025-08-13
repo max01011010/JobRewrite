@@ -5,7 +5,11 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
-import ResumeAnalyzer from "./pages/ResumeAnalyzer"; // Import the new page
+import ResumeAnalyzer from "./pages/ResumeAnalyzer";
+import LoginPage from "./pages/LoginPage"; // Import LoginPage
+import SignupPage from "./pages/SignupPage"; // Import SignupPage
+import ProtectedRoute from "./components/ProtectedRoute"; // Import ProtectedRoute
+import { AuthProvider } from "./hooks/use-auth"; // Import AuthProvider
 
 const queryClient = new QueryClient();
 
@@ -16,12 +20,21 @@ const App = () => (
       <Sonner />
       <div className="flex flex-col min-h-screen">
         <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/resume-analyzer" element={<ResumeAnalyzer />} /> {/* Add the new route */}
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <AuthProvider> {/* Wrap the entire app with AuthProvider */}
+            <Routes>
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/signup" element={<SignupPage />} />
+              
+              {/* Protected Routes */}
+              <Route element={<ProtectedRoute />}>
+                <Route path="/" element={<Index />} />
+                <Route path="/resume-analyzer" element={<ResumeAnalyzer />} />
+              </Route>
+
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </AuthProvider>
         </BrowserRouter>
       </div>
     </TooltipProvider>

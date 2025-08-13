@@ -84,6 +84,7 @@ interface JobDescriptionIn {
   description: string;
   title: string;
   location?: string;
+  user_profile_id: number; // Add user_profile_id here
 }
 
 interface JobDescriptionOut {

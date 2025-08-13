@@ -1,9 +1,16 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { cn } from '@/lib/utils'; // Assuming cn utility is available for conditional class names
+import { cn } from '@/lib/utils';
+import { useAuth } from '@/hooks/use-auth'; // Import useAuth
+import { Button } from '@/components/ui/button'; // Import Button for logout
 
 const AppHeader: React.FC = () => {
   const location = useLocation();
+  const { isAuthenticated, logout } = useAuth(); // Get auth state and logout function
+
+  const handleLogout = async () => {
+    await logout();
+  };
 
   return (
     <header className="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-app-light-border px-10 py-3">
@@ -15,25 +22,58 @@ const AppHeader: React.FC = () => {
       </div>
       <nav className="flex flex-1 justify-end gap-8">
         <div className="flex items-center gap-9">
-          <Link
-            to="/"
-            className={cn(
-              "text-app-dark-text text-sm font-medium leading-normal hover:text-app-blue transition-colors",
-              location.pathname === '/' && "text-app-blue font-bold"
-            )}
-          >
-            Job Rewrite
-          </Link>
-          <Link
-            to="/resume-analyzer"
-            className={cn(
-              "text-app-dark-text text-sm font-medium leading-normal hover:text-app-blue transition-colors",
-              location.pathname === '/resume-analyzer' && "text-app-blue font-bold"
-            )}
-          >
-            Resume Analyzer
-          </Link>
-          <a className="text-app-dark-text text-sm font-medium leading-normal" href="https://www.maxabardo.work/" target="_blank" rel="noopener noreferrer">Made for free by Max A</a>
+          {isAuthenticated ? (
+            <>
+              <Link
+                to="/"
+                className={cn(
+                  "text-app-dark-text text-sm font-medium leading-normal hover:text-app-blue transition-colors",
+                  location.pathname === '/' && "text-app-blue font-bold"
+                )}
+              >
+                Job Rewrite
+              </Link>
+              <Link
+                to="/resume-analyzer"
+                className={cn(
+                  "text-app-dark-text text-sm font-medium leading-normal hover:text-app-blue transition-colors",
+                  location.pathname === '/resume-analyzer' && "text-app-blue font-bold"
+                )}
+              >
+                Resume Analyzer
+              </Link>
+              <a className="text-app-dark-text text-sm font-medium leading-normal" href="https://www.maxabardo.work/" target="_blank" rel="noopener noreferrer">Made for free by Max A</a>
+              <Button
+                onClick={handleLogout}
+                variant="ghost"
+                className="text-app-dark-text text-sm font-medium leading-normal hover:text-app-blue transition-colors"
+              >
+                Logout
+              </Button>
+            </>
+          ) : (
+            <>
+              <Link
+                to="/login"
+                className={cn(
+                  "text-app-dark-text text-sm font-medium leading-normal hover:text-app-blue transition-colors",
+                  location.pathname === '/login' && "text-app-blue font-bold"
+                )}
+              >
+                Login
+              </Link>
+              <Link
+                to="/signup"
+                className={cn(
+                  "text-app-dark-text text-sm font-medium leading-normal hover:text-app-blue transition-colors",
+                  location.pathname === '/signup' && "text-app-blue font-bold"
+                )}
+              >
+                Sign Up
+              </Link>
+              <a className="text-app-dark-text text-sm font-medium leading-normal" href="https://www.maxabardo.work/" target="_blank" rel="noopener noreferrer">Made for free by Max A</a>
+            </>
+          )}
         </div>
       </nav>
     </header>
