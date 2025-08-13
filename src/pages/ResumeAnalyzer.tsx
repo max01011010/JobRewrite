@@ -11,9 +11,12 @@ import {
   createAnalysisSummary,
   createAnalysisScore,
 } from '@/utils/gibsonAiApi';
-import { analyzeResumeWithErnie } from '@/utils/ai'; // This function will be created next
+import { analyzeResumeWithErnie } from '@/utils/ai';
 import { showLoading, showSuccess, showError, dismissToast } from '@/utils/toast';
 import { UploadCloud, Clipboard } from 'lucide-react';
+
+// New import for the file extraction service
+import { extractResumeText } from '@/utils/fileExtractionApi';
 
 const ResumeAnalyzer: React.FC = () => {
   const [resumeInputMode, setResumeInputMode] = useState<'upload' | 'paste'>('upload');
@@ -59,24 +62,31 @@ const ResumeAnalyzer: React.FC = () => {
     event.stopPropagation();
   }, []);
 
-  // Placeholder for backend file extraction
-  const extractTextFromFile = async (file: File): Promise<string> => {
-    showError("File extraction requires a backend server. Please implement an API endpoint to process PDF/DOCX files using PDFMiner/docx2txt and return the text content.", 10000);
-    console.warn("Simulating file extraction. In a real application, this would send the file to a backend for processing.");
-    // Simulate a delay and return dummy text
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    return `[Extracted text from ${file.name}: This is a placeholder for the actual resume content that would be extracted by your backend using PDFMiner or docx2txt. Please replace this with real extracted text from your backend.]`;
-  };
-
   const handleAnalyze = async () => {
     let currentResumeContent = '';
+    let resumeTitle = "Pasted Resume";
 
     if (resumeInputMode === 'upload') {
       if (!resumeFile) {
         showError("Please upload a resume file.");
         return;
       }
-      currentResumeContent = await extractTextFromFile(resumeFile); // Simulate extraction
+      setIsLoading(true);
+      let extractionToastId: string | number | undefined;
+      try {
+        extractionToastId = showLoading("Extracting text from resume file...");
+        const extractedData = await extractResumeText(resumeFile);
+        currentResumeContent = extractedData.text;
+        resumeTitle = extractedData.meta.filename;
+        dismissToast(extractionToastId);
+        showSuccess("Text extracted successfully!");
+      } catch (error) {
+        dismissToast(extractionToastId);
+        console.error("Error during file extraction:", error);
+        showError(`Failed to extract text from file: ${error instanceof Error ? error.message : String(error)}`);
+        setIsLoading(false);
+        return;
+      }
     } else { // paste mode
       if (!resumeText.trim()) {
         showError("Please paste your resume content.");
@@ -91,14 +101,14 @@ const ResumeAnalyzer: React.FC = () => {
     }
 
     setIsLoading(true);
-    let toastId: string | number | undefined;
+    let analysisToastId: string | number | undefined;
     try {
-      toastId = showLoading("Analyzing resume and job description...");
+      analysisToastId = showLoading("Analyzing resume and job description...");
 
       // 1. Save resume and job description to GibsonAI
       const resumeResponse = await createResume({
         summary: currentResumeContent,
-        title: resumeFile ? resumeFile.name : "Pasted Resume", // Use file name or generic title
+        title: resumeTitle,
         user_profile_id: 1, // Placeholder user ID
       });
 
@@ -132,6 +142,7 @@ const ResumeAnalyzer: React.FC = () => {
         section: "Overall ATS Score", // Or break down by section if ERNIE provides it
       });
 
+      dismissToast(analysisToastId);
       showSuccess("Analysis complete and results saved!");
     } catch (error) {
       console.error("Error during analysis:", error);
@@ -144,8 +155,8 @@ const ResumeAnalyzer: React.FC = () => {
       }
     } finally {
       setIsLoading(false);
-      if (toastId) {
-        dismissToast(toastId);
+      if (analysisToastId) {
+        dismissToast(analysisToastId);
       }
     }
   };
@@ -169,7 +180,7 @@ const ResumeAnalyzer: React.FC = () => {
 
         <div className="flex flex-col items-center px-6 py-5 flex-1">
           <div className="w-full max-w-[1000px] border border-solid border-gray-300 rounded-md p-4 mb-6 bg-[#1E91D6] text-white text-center">
-            <p className="text-base font-medium">Note: This tool helps analyze your resume against a job description. For file uploads, a backend service is required for text extraction.</p>
+            <p className="text-base font-medium">Note: This tool helps analyze your resume against a job description.</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-[1000px]">
