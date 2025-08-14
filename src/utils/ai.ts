@@ -140,13 +140,28 @@ export interface AnalysisResult {
     applicationReady: number;
   };
   recommendations: {
-    content: string;
-    format: string;
-    optimization: string;
-    bestPractices: string;
-    applicationReady: string;
+    content: string[]; // Changed to string array
+    format: string[]; // Changed to string array
+    optimization: string[]; // Changed to string array
+    bestPractices: string[]; // Changed to string array
+    applicationReady: string[]; // Changed to string array
   };
 }
+
+// Helper function to split a string into sentences
+const splitIntoSentences = (text: string): string[] => {
+  if (!text) return [];
+  // Split by period, exclamation mark, or question mark, followed by a space or end of string
+  // This regex handles cases like "Dr. Smith. This is a test."
+  return text.split(/(?<=[.!?])\s+/).filter(s => s.trim() !== '').map(s => {
+    let trimmed = s.trim();
+    // Ensure each sentence ends with punctuation if it was split by it
+    if (!/[.!?]$/.test(trimmed)) {
+      return trimmed + '.'; // Add a period if missing
+    }
+    return trimmed;
+  });
+};
 
 export async function analyzeResumeWithErnie(resumeText: string, jobDescription: string): Promise<AnalysisResult> {
   if (!HF_ACCESS_TOKEN) {
@@ -164,7 +179,7 @@ export async function analyzeResumeWithErnie(resumeText: string, jobDescription:
   
   Based on the following categories and their considerations, provide a short, concise summary (max 3-4 sentences) of how well the resume matches the job description, highlighting key strengths and weaknesses. Then, provide an overall ATS compatibility score as a percentage (0-100), and a score for each of the five major categories (Content, Format, Optimization, Best Practices, Application Ready) as a percentage (0-100).
   
-  For each of the five major categories, also provide a concise recommendation (1-2 sentences) on how to improve the score in that specific category.
+  For each of the five major categories, also provide a concise recommendation as a list of bullet points (1-2 sentences per bullet point) on how to improve the score in that specific category.
   
   Categories and Considerations:
   
@@ -213,11 +228,11 @@ export async function analyzeResumeWithErnie(resumeText: string, jobDescription:
       "applicationReady": [Application Ready score as a number, e.g., 88]
     },
     "recommendations": {
-      "content": "Recommendation for content improvement.",
-      "format": "Recommendation for format improvement.",
-      "optimization": "Recommendation for optimization improvement.",
-      "bestPractices": "Recommendation for best practices improvement.",
-      "applicationReady": "Recommendation for application readiness improvement."
+      "content": ["Recommendation bullet 1.", "Recommendation bullet 2."],
+      "format": ["Recommendation bullet 1.", "Recommendation bullet 2."],
+      "optimization": ["Recommendation bullet 1.", "Recommendation bullet 2."],
+      "bestPractices": ["Recommendation bullet 1.", "Recommendation bullet 2."],
+      "applicationReady": ["Recommendation bullet 1.", "Recommendation bullet 2."]
     }
   }
   `;
@@ -275,6 +290,20 @@ export async function analyzeResumeWithErnie(resumeText: string, jobDescription:
         // Attempt to parse JSON
         try {
           const parsedResult = JSON.parse(rawContent);
+          
+          const recommendationsMap: AnalysisResult['recommendations'] = {
+            content: [], format: [], optimization: [], bestPractices: [], applicationReady: []
+          };
+
+          for (const key of Object.keys(recommendationsMap) as Array<keyof AnalysisResult['recommendations']>) {
+            const rawRec = parsedResult.recommendations?.[key];
+            if (Array.isArray(rawRec)) {
+              recommendationsMap[key] = rawRec.map(s => s.trim());
+            } else if (typeof rawRec === 'string') {
+              recommendationsMap[key] = splitIntoSentences(rawRec);
+            }
+          }
+
           if (
             typeof parsedResult.summary === 'string' &&
             typeof parsedResult.overallScore === 'number' &&
@@ -283,13 +312,7 @@ export async function analyzeResumeWithErnie(resumeText: string, jobDescription:
             typeof parsedResult.categoryScores.format === 'number' &&
             typeof parsedResult.categoryScores.optimization === 'number' &&
             typeof parsedResult.categoryScores.bestPractices === 'number' &&
-            typeof parsedResult.categoryScores.applicationReady === 'number' &&
-            typeof parsedResult.recommendations === 'object' &&
-            typeof parsedResult.recommendations.content === 'string' &&
-            typeof parsedResult.recommendations.format === 'string' &&
-            typeof parsedResult.recommendations.optimization === 'string' &&
-            typeof parsedResult.recommendations.bestPractices === 'string' &&
-            typeof parsedResult.recommendations.applicationReady === 'string'
+            typeof parsedResult.categoryScores.applicationReady === 'number'
           ) {
             return {
               summary: parsedResult.summary,
@@ -301,13 +324,7 @@ export async function analyzeResumeWithErnie(resumeText: string, jobDescription:
                 bestPractices: Math.max(0, Math.min(100, Math.round(parsedResult.categoryScores.bestPractices))),
                 applicationReady: Math.max(0, Math.min(100, Math.round(parsedResult.categoryScores.applicationReady))),
               },
-              recommendations: {
-                content: parsedResult.recommendations.content,
-                format: parsedResult.recommendations.format,
-                optimization: parsedResult.recommendations.optimization,
-                bestPractices: parsedResult.recommendations.bestPractices,
-                applicationReady: parsedResult.recommendations.applicationReady,
-              },
+              recommendations: recommendationsMap,
             };
           } else {
             throw new Error("Parsed JSON does not contain expected 'summary', 'overallScore', 'categoryScores', and 'recommendations' fields with correct types.");
@@ -323,6 +340,7 @@ export async function analyzeResumeWithErnie(resumeText: string, jobDescription:
           const bestPracticesScoreMatch = rawContent.match(/"bestPractices":\s*(\d+)/);
           const applicationReadyScoreMatch = rawContent.match(/"applicationReady":\s*(\d+)/);
 
+          // Fallback for recommendations - try to extract as single strings and then split
           const contentRecMatch = rawContent.match(/"content":\s*"(.*?)"/s);
           const formatRecMatch = rawContent.match(/"format":\s*"(.*?)"/s);
           const optimizationRecMatch = rawContent.match(/"optimization":\s*"(.*?)"/s);
@@ -340,11 +358,11 @@ export async function analyzeResumeWithErnie(resumeText: string, jobDescription:
             applicationReady: applicationReadyScoreMatch ? Math.max(0, Math.min(100, parseInt(applicationReadyScoreMatch[1], 10))) : 0,
           };
           const recommendations = {
-            content: contentRecMatch ? contentRecMatch[1].replace(/\\n/g, '\n').replace(/\\"/g, '"') : "No recommendation.",
-            format: formatRecMatch ? formatRecMatch[1].replace(/\\n/g, '\n').replace(/\\"/g, '"') : "No recommendation.",
-            optimization: optimizationRecMatch ? optimizationRecMatch[1].replace(/\\n/g, '\n').replace(/\\"/g, '"') : "No recommendation.",
-            bestPractices: bestPracticesRecMatch ? bestPracticesRecMatch[1].replace(/\\n/g, '\n').replace(/\\"/g, '"') : "No recommendation.",
-            applicationReady: applicationReadyRecMatch ? applicationReadyRecMatch[1].replace(/\\n/g, '\n').replace(/\\"/g, '"') : "No recommendation.",
+            content: splitIntoSentences(contentRecMatch ? contentRecMatch[1].replace(/\\n/g, '\n').replace(/\\"/g, '"') : "No recommendation."),
+            format: splitIntoSentences(formatRecMatch ? formatRecMatch[1].replace(/\\n/g, '\n').replace(/\\"/g, '"') : "No recommendation."),
+            optimization: splitIntoSentences(optimizationRecMatch ? optimizationRecMatch[1].replace(/\\n/g, '\n').replace(/\\"/g, '"') : "No recommendation."),
+            bestPractices: splitIntoSentences(bestPracticesRecMatch ? bestPracticesRecMatch[1].replace(/\\n/g, '\n').replace(/\\"/g, '"') : "No recommendation."),
+            applicationReady: splitIntoSentences(applicationReadyRecMatch ? applicationReadyRecMatch[1].replace(/\\n/g, '\n').replace(/\\"/g, '"') : "No recommendation."),
           };
 
 

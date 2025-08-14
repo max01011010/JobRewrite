@@ -163,12 +163,12 @@ const ResumeAnalyzer: React.FC = () => {
           });
         }
 
-        // Save recommendations
-        for (const [category, recommendationText] of Object.entries(analysisResult.recommendations)) {
+        // Save recommendations (join array into string for storage)
+        for (const [category, recommendationTexts] of Object.entries(analysisResult.recommendations)) {
           await createAnalysisRecommendation({
             report_id: analysisReportResponse.id,
             category: category.charAt(0).toUpperCase() + category.slice(1), // Capitalize first letter
-            recommendation_text: recommendationText,
+            recommendation_text: recommendationTexts.join('\n'), // Join with newline for storage
           });
         }
 
@@ -199,7 +199,7 @@ const ResumeAnalyzer: React.FC = () => {
       <div className="layout-container flex h-full grow flex-col">
         <AppHeader />
 
-        <div className="flex flex-col items-center px-6 py-5 flex-1">
+        <div className="flex flex-col items-center px-6 py-5 flex-1 justify-center"> {/* Added justify-center here */}
           {/* Analysis Results Section - Moved to top */}
           {(analysisSummary || overallAtsScore !== null) && (
             <div className="w-full max-w-[1000px] mt-4 p-6 border border-solid border-gray-300 rounded-md bg-gray-50 mb-6">
@@ -217,9 +217,11 @@ const ResumeAnalyzer: React.FC = () => {
                     {categoryScores && Object.entries(categoryScores).map(([category, score]) => (
                       <div key={category} className="bg-white p-4 rounded border border-gray-200 text-app-dark-text">
                         <p className="font-medium text-lg capitalize mb-2">{category.replace(/([A-Z])/g, ' $1').trim()}: <span className="text-app-blue font-bold">{score}%</span></p>
-                        <p className="text-sm whitespace-pre-wrap">
-                          {recommendations?.[category as keyof AnalysisResult['recommendations']] || "No specific recommendation provided."}
-                        </p>
+                        <ul className="list-disc list-inside text-sm whitespace-pre-wrap"> {/* Changed to ul/li */}
+                          {recommendations?.[category as keyof AnalysisResult['recommendations']]?.map((rec, index) => (
+                            <li key={index}>{rec}</li>
+                          ))}
+                        </ul>
                       </div>
                     ))}
                   </div>

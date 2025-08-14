@@ -207,7 +207,7 @@ export async function getAnalysisScoresByReportId(reportId: number): Promise<Ana
 interface AnalysisRecommendationIn {
   report_id: number;
   category: string; // e.g., "Content", "Format"
-  recommendation_text: string;
+  recommendation_text: string; // This will store the joined string
 }
 
 export interface AnalysisRecommendationOut {

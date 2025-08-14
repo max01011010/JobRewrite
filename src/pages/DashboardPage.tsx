@@ -29,6 +29,18 @@ import { format } from 'date-fns';
 
 const statusOptions: AnalysisReportStatus[] = ['not_applied', 'applied', 'interviewing', 'offer', 'rejected'];
 
+// Helper function to split a string into sentences (for recommendations stored as single string)
+const splitIntoSentences = (text: string): string[] => {
+  if (!text) return [];
+  return text.split(/(?<=[.!?])\s+/).filter(s => s.trim() !== '').map(s => {
+    let trimmed = s.trim();
+    if (!/[.!?]$/.test(trimmed)) {
+      return trimmed + '.';
+    }
+    return trimmed;
+  });
+};
+
 const DashboardPage: React.FC = () => {
   const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const [analysisReports, setAnalysisReports] = useState<AnalysisReportOut[]>([]);
@@ -41,7 +53,7 @@ const DashboardPage: React.FC = () => {
   const [detailedAnalysisSummary, setDetailedAnalysisSummary] = useState<AnalysisSummaryOut | null>(null);
   const [detailedOverallAtsScore, setDetailedOverallAtsScore] = useState<AnalysisScoreOut | null>(null);
   const [detailedCategoryScores, setDetailedCategoryScores] = useState<Record<string, number> | null>(null);
-  const [detailedRecommendations, setDetailedRecommendations] = useState<Record<string, string> | null>(null);
+  const [detailedRecommendations, setDetailedRecommendations] = useState<Record<string, string[]> | null>(null); // Changed to string array
   const [isViewingDetails, setIsViewingDetails] = useState<boolean>(false);
   const [isLoadingDetails, setIsLoadingDetails] = useState<boolean>(false);
 
@@ -121,9 +133,9 @@ const DashboardPage: React.FC = () => {
       });
       setDetailedCategoryScores(categories);
 
-      const recommendationsMap: Record<string, string> = {};
+      const recommendationsMap: Record<string, string[]> = {}; // Changed to string array
       allRecommendations.forEach(rec => {
-        recommendationsMap[rec.category] = rec.recommendation_text;
+        recommendationsMap[rec.category] = splitIntoSentences(rec.recommendation_text); // Split into sentences
       });
       setDetailedRecommendations(recommendationsMap);
 
@@ -336,9 +348,11 @@ const DashboardPage: React.FC = () => {
                     {detailedCategoryScores && Object.entries(detailedCategoryScores).map(([category, score]) => (
                       <div key={category} className="bg-white p-4 rounded border border-gray-200 text-app-dark-text">
                         <p className="font-medium text-lg capitalize mb-2">{category.replace(/([A-Z])/g, ' $1').trim()}: <span className="text-app-blue font-bold">{score}%</span></p>
-                        <p className="text-sm whitespace-pre-wrap">
-                          {detailedRecommendations?.[category] || "No specific recommendation provided."}
-                        </p>
+                        <ul className="list-disc list-inside text-sm whitespace-pre-wrap"> {/* Changed to ul/li */}
+                          {detailedRecommendations?.[category]?.map((rec, index) => (
+                            <li key={index}>{rec}</li>
+                          ))}
+                        </ul>
                       </div>
                     ))}
                   </div>
