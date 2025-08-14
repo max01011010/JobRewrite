@@ -91,10 +91,13 @@ const Index: React.FC = () => {
           {/* New Introduction Section */}
           <div className="w-full max-w-[1000px] mt-4 p-6 border border-solid border-blue-200 rounded-md bg-blue-50 text-blue-800 mb-4">
             <p className="text-base mb-4">
-              Our Rewrite tool helps you transform your existing resume bullet points or job descriptions into powerful, ATS-optimized statements with measurable outcomes. Simply enter a role from your resume or a job description of your current or previous role, and our AI will provide suggestions to enhance your bullet points with relevant, quantifiable results. Remember to update any placeholder metrics (e.g., "[Quantifiable bullet point 1]") with your actual achievements.
+              Our Rewrite tool helps you transform your existing resume bullet points or job descriptions into powerful, ATS-optimized statements with measurable outcomes. Simply enter a role from your resume or a job description of your current or previous role, and our AI will provide suggestions to enhance your bullet points with relevant, quantifiable results.
             </p>
-            <p className="text-base">
+            <p className="text-base mb-4">
               For your convenience, this page will display a log of your 3 most recent submissions during this session. Please note that these results are not saved permanently and will be cleared when you close or refresh the page.
+            </p>
+            <p className="text-sm mt-4 text-red-700 font-medium">
+              Important Note: Remember to update any placeholder metrics (e.g., "Reduced budget spend by 10%") with your actual achievements.
             </p>
           </div>
           <div className="gap-1 flex flex-1 w-full">
