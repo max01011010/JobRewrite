@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import AppHeader from '@/components/AppHeader';
 import AppFooter from '@/components/AppFooter';
 import { useAuth } from '@/hooks/use-auth';
 import {
@@ -26,6 +25,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Loader2, Eye } from 'lucide-react';
 import { format } from 'date-fns';
+import UnderConstructionBanner from '@/components/UnderConstructionBanner'; // Import the banner
 
 const statusOptions: AnalysisReportStatus[] = ['not_applied', 'applied', 'interviewing', 'offer', 'rejected'];
 
@@ -190,7 +190,8 @@ const DashboardPage: React.FC = () => {
   return (
     <div className="relative flex size-full min-h-screen flex-col bg-white group/design-root overflow-x-hidden" style={{ fontFamily: 'Inter, "Noto Sans", sans-serif' }}>
       <div className="layout-container flex h-full grow flex-col">
-        <AppHeader />
+        {/* AppHeader removed from here as it's now global */}
+        <UnderConstructionBanner /> {/* Banner added here */}
         <div className="flex flex-col items-center px-6 py-5 flex-1">
           <h1 className="text-app-dark-text tracking-light text-3xl font-bold leading-tight text-center mb-8">Your Dashboard</h1>
 

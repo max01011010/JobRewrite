@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
-import AppHeader from '@/components/AppHeader';
 import AppFooter from '@/components/AppFooter';
 
 const authClient = new AuthClient();
@@ -51,7 +50,7 @@ const VerifyEmailPage: React.FC = () => {
   return (
     <div className="relative flex size-full min-h-screen flex-col bg-white group/design-root overflow-x-hidden" style={{ fontFamily: 'Inter, "Noto Sans", sans-serif' }}>
       <div className="layout-container flex h-full grow flex-col">
-        <AppHeader />
+        {/* AppHeader removed from here as it's now global */}
         <div className="flex flex-col items-center px-6 py-5 flex-1 justify-center">
           <Card className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md border border-gray-200">
             <CardHeader className="text-center">

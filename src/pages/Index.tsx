@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import AppHeader from '@/components/AppHeader';
 import JobTextarea from '@/components/JobTextarea';
 import { Button } from '@/components/ui/button';
 import { rewriteJobDescription } from '@/utils/ai';
@@ -75,7 +74,7 @@ const Index: React.FC = () => {
   return (
     <div className="relative flex size-full min-h-screen flex-col bg-white group/design-root overflow-x-hidden" style={{ fontFamily: 'Inter, "Noto Sans", sans-serif' }}>
       <div className="layout-container flex h-full grow flex-col">
-        <AppHeader />
+        {/* AppHeader removed from here as it's now global */}
         <div className="flex flex-col items-center px-6 py-5">
           <div className="w-full max-w-[1000px] border border-solid border-gray-300 rounded-md p-4 mb-6 bg-[#1E91D6] text-white text-center">
             <p className="text-base font-medium">Note: Please replace the placeholder metrics provided to align with real data you've achieved and gathered.</p>

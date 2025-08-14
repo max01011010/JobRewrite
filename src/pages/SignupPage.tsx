@@ -7,8 +7,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/use-auth';
-import AppHeader from '@/components/AppHeader';
 import AppFooter from '@/components/AppFooter';
+import UnderConstructionBanner from '@/components/UnderConstructionBanner'; // Import the banner
 
 const signupSchema = z.object({
   first_name: z.string().min(1, { message: "First name is required." }),
@@ -47,7 +47,8 @@ const SignupPage: React.FC = () => {
   return (
     <div className="relative flex size-full min-h-screen flex-col bg-white group/design-root overflow-x-hidden" style={{ fontFamily: 'Inter, "Noto Sans", sans-serif' }}>
       <div className="layout-container flex h-full grow flex-col">
-        <AppHeader />
+        {/* AppHeader removed from here as it's now global */}
+        <UnderConstructionBanner /> {/* Banner added here */}
         <div className="flex flex-col items-center px-6 py-5 flex-1 justify-center">
           <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md border border-gray-200">
             <h2 className="text-2xl font-bold text-center text-app-dark-text">Sign Up</h2>

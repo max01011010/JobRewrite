@@ -14,7 +14,6 @@ import {
 import { analyzeResumeWithErnie, AnalysisResult } from '@/utils/ai';
 import { showLoading, showSuccess, showError, dismissToast } from '@/utils/toast';
 import { UploadCloud, Clipboard } from 'lucide-react';
-import AppHeader from '@/components/AppHeader';
 import AppFooter from '@/components/AppFooter';
 import { extractResumeText } from '@/utils/fileExtractionApi';
 import { useAuth } from '@/hooks/use-auth';
@@ -197,7 +196,7 @@ const ResumeAnalyzer: React.FC = () => {
   return (
     <div className="relative flex size-full min-h-screen flex-col bg-white group/design-root overflow-x-hidden" style={{ fontFamily: 'Inter, "Noto Sans", sans-serif' }}>
       <div className="layout-container flex h-full grow flex-col">
-        <AppHeader />
+        {/* AppHeader removed from here as it's now global */}
 
         <div className="flex flex-col items-center px-6 py-5 flex-1 justify-center"> {/* Added justify-center here */}
           {/* Analysis Results Section - Moved to top */}
