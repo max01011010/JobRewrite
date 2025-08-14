@@ -8,7 +8,7 @@ import {
   getResume,
   getJobDescription,
   getAnalysisSummaryByReportId,
-  getAnalysisScoreByReportId,
+  getAnalysisScoresByReportId, // Changed to getAnalysisScoresByReportId
   AnalysisReportOut,
   AnalysisReportStatus,
   ResumeOut,
@@ -37,7 +37,8 @@ const DashboardPage: React.FC = () => {
   const [detailedResume, setDetailedResume] = useState<ResumeOut | null>(null);
   const [detailedJobDescription, setDetailedJobDescription] = useState<JobDescriptionOut | null>(null);
   const [detailedAnalysisSummary, setDetailedAnalysisSummary] = useState<AnalysisSummaryOut | null>(null);
-  const [detailedAtsScore, setDetailedAtsScore] = useState<AnalysisScoreOut | null>(null);
+  const [detailedOverallAtsScore, setDetailedOverallAtsScore] = useState<AnalysisScoreOut | null>(null);
+  const [detailedCategoryScores, setDetailedCategoryScores] = useState<Record<string, number> | null>(null); // New state for category scores
   const [isViewingDetails, setIsViewingDetails] = useState<boolean>(false);
   const [isLoadingDetails, setIsLoadingDetails] = useState<boolean>(false);
 
@@ -90,21 +91,31 @@ const DashboardPage: React.FC = () => {
     setDetailedResume(null);
     setDetailedJobDescription(null);
     setDetailedAnalysisSummary(null);
-    setDetailedAtsScore(null);
+    setDetailedOverallAtsScore(null);
+    setDetailedCategoryScores(null); // Reset category scores
 
     let toastId: string | number | undefined;
     try {
       toastId = showLoading("Loading report details...");
-      const [resume, jobDescription, summary, score] = await Promise.all([
+      const [resume, jobDescription, summary, allScores] = await Promise.all([
         getResume(report.resume_id),
         getJobDescription(report.job_description_id),
         getAnalysisSummaryByReportId(report.id),
-        getAnalysisScoreByReportId(report.id),
+        getAnalysisScoresByReportId(report.id), // Fetch all scores
       ]);
       setDetailedResume(resume);
       setDetailedJobDescription(jobDescription);
       setDetailedAnalysisSummary(summary);
-      setDetailedAtsScore(score);
+
+      const overallScore = allScores.find(s => s.section === "Overall ATS Score");
+      setDetailedOverallAtsScore(overallScore || null);
+
+      const categories: Record<string, number> = {};
+      allScores.filter(s => s.section !== "Overall ATS Score").forEach(s => {
+        categories[s.section] = s.score;
+      });
+      setDetailedCategoryScores(categories);
+
       showSuccess("Report details loaded!");
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Failed to load report details.";
@@ -304,9 +315,22 @@ const DashboardPage: React.FC = () => {
               <div className="md:col-span-2">
                 <h3 className="text-lg font-semibold mb-2">Overall ATS Score</h3>
                 <div className="bg-gray-100 p-4 rounded-md border border-gray-200 text-sm">
-                  <p className="text-2xl font-bold text-app-blue">{detailedAtsScore?.score !== undefined ? `${detailedAtsScore.score}%` : 'N/A'}</p>
+                  <p className="text-2xl font-bold text-app-blue">{detailedOverallAtsScore?.score !== undefined ? `${detailedOverallAtsScore.score}%` : 'N/A'}</p>
                 </div>
               </div>
+              {detailedCategoryScores && Object.keys(detailedCategoryScores).length > 0 && (
+                <div className="md:col-span-2">
+                  <h3 className="text-lg font-semibold mb-2">Category Breakdown</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {Object.entries(detailedCategoryScores).map(([category, score]) => (
+                      <div key={category} className="bg-white p-3 rounded border border-gray-200 text-app-dark-text">
+                        <p className="font-medium">{category}:</p>
+                        <p className="text-xl font-bold text-app-blue">{score}%</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </DialogContent>

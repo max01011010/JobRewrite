@@ -129,9 +129,16 @@ Rewritten Job Description:`;
   throw new Error("Failed to rewrite job description after multiple attempts.");
 }
 
-interface AnalysisResult {
+export interface AnalysisResult {
   summary: string;
-  score: number;
+  overallScore: number;
+  categoryScores: {
+    content: number;
+    format: number;
+    optimization: number;
+    bestPractices: number;
+    applicationReady: number;
+  };
 }
 
 export async function analyzeResumeWithErnie(resumeText: string, jobDescription: string): Promise<AnalysisResult> {
@@ -139,14 +146,6 @@ export async function analyzeResumeWithErnie(resumeText: string, jobDescription:
     showError("Hugging Face access token is not set. Please set VITE_HF_ACCESS_TOKEN in your .env file.");
     throw new Error("Hugging Face access token is missing.");
   }
-
-  const scoringWeights = `
-  - Keyword matching: 30%
-  - Skills alignment: 25%
-  - Experience relevance: 20%
-  - Education match: 15%
-  - Format & structure: 10%
-  `;
 
   const promptContent = `Analyze the following resume against the provided job description.
   
@@ -156,15 +155,54 @@ export async function analyzeResumeWithErnie(resumeText: string, jobDescription:
   Job Description:
   ${jobDescription}
   
-  Based on the following scoring weights, provide a short, concise summary (max 3-4 sentences) of how well the resume matches the job description, highlighting key strengths and weaknesses. Then, provide an overall ATS compatibility score as a percentage (0-100).
+  Based on the following categories and their considerations, provide a short, concise summary (max 3-4 sentences) of how well the resume matches the job description, highlighting key strengths and weaknesses. Then, provide an overall ATS compatibility score as a percentage (0-100), and a score for each of the five major categories (Content, Format, Optimization, Best Practices, Application Ready) as a percentage (0-100).
   
-  Scoring Weights:
-  ${scoringWeights}
+  Categories and Considerations:
+  
+  Content: Includes all individual sections and overall quality. Focus on clarity, meaning, avoiding generic buzzwords or weak verbs.
+  - Short bullet points: Ensure enough detail to communicate significance, skills, and accomplishments. Not too short, not too long.
+  - Punctuated bullet points: Proper punctuation for clarity, readability, and professionalism.
+  - Quantified bullet points: Include numerical data for credibility and impact.
+  - Incorrect number of bullet points: Aim for 3-10 bullet points total across the resume, and 3-6 per experience.
+  - Weak bullet points: Avoid dull language, lack of achievements/skills, and missing results.
+  - Buzzwords: Avoid trendy terms that make you sound generic.
+  - Personal pronouns: Exclude "I," "my," "mine," etc.
+  - Passive voice: Use active voice to highlight contributions.
+  - Filler words: Avoid "just," "very," "really," etc.
+  
+  Format: Focus on visual presentation and ATS compatibility.
+  - Resume template: Use ATS-friendly designs.
+  - Page length: 1-page is best; 2-pages only for Director/Executive roles.
+  - Font size: Recommended 8.5-9.5pts.
+  - Bullet points: Keep 3-6 per experience.
+  
+  Optimization: Tailoring for specific roles and industries.
+  - AI Keyword Targeting: Align resume with job title and description keywords.
+  - Experience: Match resume to experience level (Intern, Entry, Mid-Senior, etc.).
+  - Industry: Speak the language and meet expectations of the specific field.
+  
+  Best Practices: General professional standards.
+  - Locations: Add geographical locations to experiences.
+  - Email: Include a professional email address.
+  - Date format: Use written month format (e.g., January 2023).
+  - Resume name: Simple and professional (e.g., "FirstName LastName Resume").
+  - Word count: Stay within 400-600 words.
+  - LinkedIn URL: Include professional LinkedIn profile URL.
+  - Skills format: Categorize skills (hard, soft, language, etc.).
+  
+  Application Ready: Overall readiness for the application process, encompassing all other categories.
   
   Your output must strictly follow this JSON format:
   {
     "summary": "Your concise summary here.",
-    "score": [ATS compatibility score as a number, e.g., 85]
+    "overallScore": [Overall ATS compatibility score as a number, e.g., 85],
+    "categoryScores": {
+      "content": [Content score as a number, e.g., 90],
+      "format": [Format score as a number, e.g., 80],
+      "optimization": [Optimization score as a number, e.g., 95],
+      "bestPractices": [Best Practices score as a number, e.g., 75],
+      "applicationReady": [Application Ready score as a number, e.g., 88]
+    }
   }
   `;
 
@@ -221,27 +259,55 @@ export async function analyzeResumeWithErnie(resumeText: string, jobDescription:
         // Attempt to parse JSON
         try {
           const parsedResult = JSON.parse(rawContent);
-          if (typeof parsedResult.summary === 'string' && typeof parsedResult.score === 'number') {
+          if (
+            typeof parsedResult.summary === 'string' &&
+            typeof parsedResult.overallScore === 'number' &&
+            typeof parsedResult.categoryScores === 'object' &&
+            typeof parsedResult.categoryScores.content === 'number' &&
+            typeof parsedResult.categoryScores.format === 'number' &&
+            typeof parsedResult.categoryScores.optimization === 'number' &&
+            typeof parsedResult.categoryScores.bestPractices === 'number' &&
+            typeof parsedResult.categoryScores.applicationReady === 'number'
+          ) {
             return {
               summary: parsedResult.summary,
-              score: Math.max(0, Math.min(100, Math.round(parsedResult.score))), // Ensure score is between 0-100
+              overallScore: Math.max(0, Math.min(100, Math.round(parsedResult.overallScore))),
+              categoryScores: {
+                content: Math.max(0, Math.min(100, Math.round(parsedResult.categoryScores.content))),
+                format: Math.max(0, Math.min(100, Math.round(parsedResult.categoryScores.format))),
+                optimization: Math.max(0, Math.min(100, Math.round(parsedResult.categoryScores.optimization))),
+                bestPractices: Math.max(0, Math.min(100, Math.round(parsedResult.categoryScores.bestPractices))),
+                applicationReady: Math.max(0, Math.min(100, Math.round(parsedResult.categoryScores.applicationReady))),
+              },
             };
           } else {
-            throw new Error("Parsed JSON does not contain expected 'summary' (string) and 'score' (number) fields.");
+            throw new Error("Parsed JSON does not contain expected 'summary', 'overallScore', and 'categoryScores' fields with correct types.");
           }
         } catch (jsonError) {
           console.warn("AI response was not valid JSON, attempting fallback parsing:", rawContent);
-          // Fallback parsing if AI doesn't return perfect JSON
+          // Fallback parsing if AI doesn't return perfect JSON (less robust for nested objects)
           const summaryMatch = rawContent.match(/"summary":\s*"(.*?)"/s);
-          const scoreMatch = rawContent.match(/"score":\s*(\d+)/);
+          const overallScoreMatch = rawContent.match(/"overallScore":\s*(\d+)/);
+          const contentScoreMatch = rawContent.match(/"content":\s*(\d+)/);
+          const formatScoreMatch = rawContent.match(/"format":\s*(\d+)/);
+          const optimizationScoreMatch = rawContent.match(/"optimization":\s*(\d+)/);
+          const bestPracticesScoreMatch = rawContent.match(/"bestPractices":\s*(\d+)/);
+          const applicationReadyScoreMatch = rawContent.match(/"applicationReady":\s*(\d+)/);
 
           const summary = summaryMatch ? summaryMatch[1].replace(/\\n/g, '\n').replace(/\\"/g, '"') : "Could not extract summary.";
-          const score = scoreMatch ? Math.max(0, Math.min(100, parseInt(scoreMatch[1], 10))) : 0;
+          const overallScore = overallScoreMatch ? Math.max(0, Math.min(100, parseInt(overallScoreMatch[1], 10))) : 0;
+          const categoryScores = {
+            content: contentScoreMatch ? Math.max(0, Math.min(100, parseInt(contentScoreMatch[1], 10))) : 0,
+            format: formatScoreMatch ? Math.max(0, Math.min(100, parseInt(formatScoreMatch[1], 10))) : 0,
+            optimization: optimizationScoreMatch ? Math.max(0, Math.min(100, parseInt(optimizationScoreMatch[1], 10))) : 0,
+            bestPractices: bestPracticesScoreMatch ? Math.max(0, Math.min(100, parseInt(bestPracticesScoreMatch[1], 10))) : 0,
+            applicationReady: applicationReadyScoreMatch ? Math.max(0, Math.min(100, parseInt(applicationReadyScoreMatch[1], 10))) : 0,
+          };
 
-          if (summaryMatch && scoreMatch) {
-            return { summary, score };
+          if (summaryMatch && overallScoreMatch) {
+            return { summary, overallScore, categoryScores };
           } else {
-            throw new Error("Failed to parse AI response for summary and score.");
+            throw new Error("Failed to parse AI response for summary and scores.");
           }
         }
       } else {

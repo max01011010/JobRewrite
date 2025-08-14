@@ -182,7 +182,7 @@ export async function getAnalysisSummaryByReportId(reportId: number): Promise<An
 interface AnalysisScoreIn {
   report_id: number;
   score: number;
-  section: string;
+  section: string; // e.g., "Overall ATS Score", "Content", "Format"
 }
 
 export interface AnalysisScoreOut {
@@ -199,7 +199,6 @@ export async function createAnalysisScore(data: AnalysisScoreIn): Promise<Analys
   return callGibsonAiApi<AnalysisScoreOut>("/analysis-score", "POST", data);
 }
 
-export async function getAnalysisScoreByReportId(reportId: number): Promise<AnalysisScoreOut | null> {
-  const scores = await callGibsonAiApi<AnalysisScoreOut[]>("/analysis-score", "GET", undefined, { report_id: reportId });
-  return scores.length > 0 ? scores[0] : null;
+export async function getAnalysisScoresByReportId(reportId: number): Promise<AnalysisScoreOut[]> {
+  return callGibsonAiApi<AnalysisScoreOut[]>("/analysis-score", "GET", undefined, { report_id: reportId });
 }

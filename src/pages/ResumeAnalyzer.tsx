@@ -10,7 +10,7 @@ import {
   createAnalysisSummary,
   createAnalysisScore,
 } from '@/utils/gibsonAiApi';
-import { analyzeResumeWithErnie } from '@/utils/ai';
+import { analyzeResumeWithErnie, AnalysisResult } from '@/utils/ai';
 import { showLoading, showSuccess, showError, dismissToast } from '@/utils/toast';
 import { UploadCloud, Clipboard } from 'lucide-react';
 import AppHeader from '@/components/AppHeader';
@@ -26,7 +26,8 @@ const ResumeAnalyzer: React.FC = () => {
   const [jobDescription, setJobDescription] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [analysisSummary, setAnalysisSummary] = useState<string>('');
-  const [atsScore, setAtsScore] = useState<number | null>(null);
+  const [overallAtsScore, setOverallAtsScore] = useState<number | null>(null);
+  const [categoryScores, setCategoryScores] = useState<AnalysisResult['categoryScores'] | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -110,7 +111,8 @@ const ResumeAnalyzer: React.FC = () => {
       // Run analysis with ERNIE
       const analysisResult = await analyzeResumeWithErnie(currentResumeContent, jobDescription);
       setAnalysisSummary(analysisResult.summary);
-      setAtsScore(analysisResult.score);
+      setOverallAtsScore(analysisResult.overallScore);
+      setCategoryScores(analysisResult.categoryScores);
 
       dismissToast(analysisToastId);
       showSuccess("Analysis complete!");
@@ -142,11 +144,21 @@ const ResumeAnalyzer: React.FC = () => {
           summary_text: analysisResult.summary,
         });
 
+        // Save overall score
         await createAnalysisScore({
           report_id: analysisReportResponse.id,
-          score: analysisResult.score,
+          score: analysisResult.overallScore,
           section: "Overall ATS Score",
         });
+
+        // Save category scores
+        for (const [category, score] of Object.entries(analysisResult.categoryScores)) {
+          await createAnalysisScore({
+            report_id: analysisReportResponse.id,
+            score: score,
+            section: category.charAt(0).toUpperCase() + category.slice(1), // Capitalize first letter
+          });
+        }
         showSuccess("Analysis results saved to your dashboard!");
       } else {
         showSuccess("Analysis complete! Log in to save your results to the dashboard.");
@@ -250,13 +262,26 @@ const ResumeAnalyzer: React.FC = () => {
           </div>
 
           {/* Analysis Results Section */}
-          {(analysisSummary || atsScore !== null) && (
+          {(analysisSummary || overallAtsScore !== null) && (
             <div className="w-full max-w-[1000px] mt-8 p-6 border border-solid border-gray-300 rounded-md bg-gray-50">
               <h3 className="text-app-dark-text tracking-light text-2xl font-bold leading-tight text-center mb-4">Analysis Results</h3>
-              {atsScore !== null && (
+              {overallAtsScore !== null && (
                 <div className="mb-4 text-center">
-                  <p className="text-lg font-semibold text-app-dark-text">ATS Score:</p>
-                  <p className="text-4xl font-bold text-app-blue">{atsScore}%</p>
+                  <p className="text-lg font-semibold text-app-dark-text">Overall ATS Score:</p>
+                  <p className="text-4xl font-bold text-app-blue">{overallAtsScore}%</p>
+                </div>
+              )}
+              {categoryScores && (
+                <div className="mb-4">
+                  <p className="text-lg font-semibold text-app-dark-text mb-2">Category Breakdown:</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {Object.entries(categoryScores).map(([category, score]) => (
+                      <div key={category} className="bg-white p-3 rounded border border-gray-200 text-app-dark-text">
+                        <p className="font-medium capitalize">{category.replace(/([A-Z])/g, ' $1').trim()}:</p>
+                        <p className="text-xl font-bold text-app-blue">{score}%</p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
               {analysisSummary && (
