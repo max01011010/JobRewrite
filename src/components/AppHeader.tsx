@@ -29,16 +29,16 @@ const AppHeader: React.FC = () => {
               location.pathname === '/' && "text-app-blue font-bold"
             )}
           >
-            Job Rewrite
+            Resume Analyzer
           </Link>
           <Link
-            to="/resume-analyzer"
+            to="/job-rewrite"
             className={cn(
               "text-app-dark-text text-sm font-medium leading-normal hover:text-app-blue transition-colors",
-              location.pathname === '/resume-analyzer' && "text-app-blue font-bold"
+              location.pathname === '/job-rewrite' && "text-app-blue font-bold"
             )}
           >
-            Resume Analyzer
+            Job Rewrite
           </Link>
           <Link
             to="/dashboard"
