@@ -9,7 +9,7 @@ import {
   createAnalysisReport,
   createAnalysisSummary,
   createAnalysisScore,
-  createAnalysisRecommendation, // Import new function
+  createAnalysisRecommendation,
 } from '@/utils/gibsonAiApi';
 import { analyzeResumeWithErnie, AnalysisResult } from '@/utils/ai';
 import { showLoading, showSuccess, showError, dismissToast } from '@/utils/toast';
@@ -29,7 +29,7 @@ const ResumeAnalyzer: React.FC = () => {
   const [analysisSummary, setAnalysisSummary] = useState<string>('');
   const [overallAtsScore, setOverallAtsScore] = useState<number | null>(null);
   const [categoryScores, setCategoryScores] = useState<AnalysisResult['categoryScores'] | null>(null);
-  const [recommendations, setRecommendations] = useState<AnalysisResult['recommendations'] | null>(null); // New state for recommendations
+  const [recommendations, setRecommendations] = useState<AnalysisResult['recommendations'] | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -284,27 +284,16 @@ const ResumeAnalyzer: React.FC = () => {
                   <p className="text-4xl font-bold text-app-blue">{overallAtsScore}%</p>
                 </div>
               )}
-              {categoryScores && (
+              {(categoryScores || recommendations) && (
                 <div className="mb-4">
-                  <p className="text-lg font-semibold text-app-dark-text mb-2">Category Breakdown:</p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {Object.entries(categoryScores).map(([category, score]) => (
-                      <div key={category} className="bg-white p-3 rounded border border-gray-200 text-app-dark-text">
-                        <p className="font-medium capitalize">{category.replace(/([A-Z])/g, ' $1').trim()}:</p>
-                        <p className="text-xl font-bold text-app-blue">{score}%</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-              {recommendations && (
-                <div className="mb-4">
-                  <p className="text-lg font-semibold text-app-dark-text mb-2">Recommendations:</p>
-                  <div className="grid grid-cols-1 gap-4">
-                    {Object.entries(recommendations).map(([category, recommendationText]) => (
-                      <div key={category} className="bg-white p-3 rounded border border-gray-200 text-app-dark-text">
-                        <p className="font-medium capitalize">{category.replace(/([A-Z])/g, ' $1').trim()}:</p>
-                        <p className="text-sm whitespace-pre-wrap">{recommendationText}</p>
+                  <p className="text-lg font-semibold text-app-dark-text mb-2">Category Breakdown & Recommendations:</p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {categoryScores && Object.entries(categoryScores).map(([category, score]) => (
+                      <div key={category} className="bg-white p-4 rounded border border-gray-200 text-app-dark-text">
+                        <p className="font-medium text-lg capitalize mb-2">{category.replace(/([A-Z])/g, ' $1').trim()}: <span className="text-app-blue font-bold">{score}%</span></p>
+                        <p className="text-sm whitespace-pre-wrap">
+                          {recommendations?.[category as keyof AnalysisResult['recommendations']] || "No specific recommendation provided."}
+                        </p>
                       </div>
                     ))}
                   </div>

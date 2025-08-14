@@ -9,14 +9,14 @@ import {
   getJobDescription,
   getAnalysisSummaryByReportId,
   getAnalysisScoresByReportId,
-  getAnalysisRecommendationsByReportId, // Import new function
+  getAnalysisRecommendationsByReportId,
   AnalysisReportOut,
   AnalysisReportStatus,
   ResumeOut,
   JobDescriptionOut,
   AnalysisSummaryOut,
   AnalysisScoreOut,
-  AnalysisRecommendationOut, // Import new interface
+  AnalysisRecommendationOut,
 } from '@/utils/gibsonAiApi';
 import { showLoading, showSuccess, showError, dismissToast } from '@/utils/toast';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -41,7 +41,7 @@ const DashboardPage: React.FC = () => {
   const [detailedAnalysisSummary, setDetailedAnalysisSummary] = useState<AnalysisSummaryOut | null>(null);
   const [detailedOverallAtsScore, setDetailedOverallAtsScore] = useState<AnalysisScoreOut | null>(null);
   const [detailedCategoryScores, setDetailedCategoryScores] = useState<Record<string, number> | null>(null);
-  const [detailedRecommendations, setDetailedRecommendations] = useState<Record<string, string> | null>(null); // New state for recommendations
+  const [detailedRecommendations, setDetailedRecommendations] = useState<Record<string, string> | null>(null);
   const [isViewingDetails, setIsViewingDetails] = useState<boolean>(false);
   const [isLoadingDetails, setIsLoadingDetails] = useState<boolean>(false);
 
@@ -96,7 +96,7 @@ const DashboardPage: React.FC = () => {
     setDetailedAnalysisSummary(null);
     setDetailedOverallAtsScore(null);
     setDetailedCategoryScores(null);
-    setDetailedRecommendations(null); // Reset recommendations
+    setDetailedRecommendations(null);
 
     let toastId: string | number | undefined;
     try {
@@ -106,7 +106,7 @@ const DashboardPage: React.FC = () => {
         getJobDescription(report.job_description_id),
         getAnalysisSummaryByReportId(report.id),
         getAnalysisScoresByReportId(report.id),
-        getAnalysisRecommendationsByReportId(report.id), // Fetch recommendations
+        getAnalysisRecommendationsByReportId(report.id),
       ]);
       setDetailedResume(resume);
       setDetailedJobDescription(jobDescription);
@@ -329,27 +329,16 @@ const DashboardPage: React.FC = () => {
                   <p className="text-2xl font-bold text-app-blue">{detailedOverallAtsScore?.score !== undefined ? `${detailedOverallAtsScore.score}%` : 'N/A'}</p>
                 </div>
               </div>
-              {detailedCategoryScores && Object.keys(detailedCategoryScores).length > 0 && (
+              {(detailedCategoryScores || detailedRecommendations) && (
                 <div className="md:col-span-2">
-                  <h3 className="text-lg font-semibold mb-2">Category Breakdown</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {Object.entries(detailedCategoryScores).map(([category, score]) => (
-                      <div key={category} className="bg-white p-3 rounded border border-gray-200 text-app-dark-text">
-                        <p className="font-medium">{category}:</p>
-                        <p className="text-xl font-bold text-app-blue">{score}%</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-              {detailedRecommendations && Object.keys(detailedRecommendations).length > 0 && (
-                <div className="md:col-span-2">
-                  <h3 className="text-lg font-semibold mb-2">Recommendations</h3>
-                  <div className="grid grid-cols-1 gap-4">
-                    {Object.entries(detailedRecommendations).map(([category, recommendationText]) => (
-                      <div key={category} className="bg-white p-3 rounded border border-gray-200 text-app-dark-text">
-                        <p className="font-medium capitalize">{category.replace(/([A-Z])/g, ' $1').trim()}:</p>
-                        <p className="text-sm whitespace-pre-wrap">{recommendationText}</p>
+                  <h3 className="text-lg font-semibold mb-2">Category Breakdown & Recommendations</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {detailedCategoryScores && Object.entries(detailedCategoryScores).map(([category, score]) => (
+                      <div key={category} className="bg-white p-4 rounded border border-gray-200 text-app-dark-text">
+                        <p className="font-medium text-lg capitalize mb-2">{category.replace(/([A-Z])/g, ' $1').trim()}: <span className="text-app-blue font-bold">{score}%</span></p>
+                        <p className="text-sm whitespace-pre-wrap">
+                          {detailedRecommendations?.[category] || "No specific recommendation provided."}
+                        </p>
                       </div>
                     ))}
                   </div>
