@@ -1,9 +1,13 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '@/hooks/use-auth';
 
 const ProtectedRoute: React.FC = () => {
   const { isAuthenticated, isLoading } = useAuth();
+
+  useEffect(() => {
+    console.log("ProtectedRoute - isAuthenticated:", isAuthenticated, "isLoading:", isLoading);
+  }, [isAuthenticated, isLoading]);
 
   if (isLoading) {
     // Optionally render a loading spinner or skeleton here
@@ -15,6 +19,7 @@ const ProtectedRoute: React.FC = () => {
   }
 
   if (!isAuthenticated) {
+    console.log("ProtectedRoute - Redirecting to /login because not authenticated.");
     return <Navigate to="/login" replace />;
   }
 

@@ -25,11 +25,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const data = await authClient.me();
       setUser(data.user);
+      console.log("fetchUser completed. User:", data.user, "isAuthenticated:", !!data.user);
     } catch (error) {
       console.error("Failed to fetch user:", error);
       setUser(null);
     } finally {
       setIsLoading(false);
+      console.log("fetchUser finally. isLoading:", false);
     }
   }, []);
 
@@ -43,13 +45,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsLoading(true);
       toastId = showLoading("Logging in...");
       await authClient.login({ email, password });
+      console.log("authClient.login successful. Now fetching user...");
       await fetchUser(); // Fetch user details after successful login
       showSuccess("Logged in successfully!");
+      // Note: The `user` and `isAuthenticated` here might be stale due to closure,
+      // but `fetchUser` has already updated the actual state.
+      console.log("Login process finished. Current user state (might be stale in this log):", user, "isAuthenticated:", isAuthenticated); 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
       showError(`Login failed: ${errorMessage}`);
-      setUser(null);
-      throw error; // Re-throw to allow form to catch
+      setUser(null); // Ensure user is null on login failure
+      throw error;
     } finally {
       setIsLoading(false);
       if (toastId) dismissToast(toastId);
@@ -66,7 +72,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
       showError(`Sign up failed: ${errorMessage}`);
-      throw error; // Re-throw to allow form to catch
+      throw error;
     } finally {
       setIsLoading(false);
       if (toastId) dismissToast(toastId);
