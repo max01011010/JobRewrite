@@ -62,6 +62,8 @@ const AppHeader: React.FC = () => {
             </Button>
           )}
           
+          {/* Login and Signup links are now hidden */}
+          {/*
           {!isAuthenticated && (
             <>
               <Link
@@ -84,7 +86,7 @@ const AppHeader: React.FC = () => {
               </Link>
             </>
           )}
-          
+          */}
         </div>
       </nav>
     </header>
