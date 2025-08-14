@@ -32,7 +32,7 @@ const LoginPage: React.FC = () => {
   const onSubmit = async (data: LoginFormInputs) => {
     try {
       await login(data.email, data.password);
-      navigate('/'); // Redirect to home or dashboard after successful login
+      navigate('/dashboard'); // Redirect to dashboard after successful login
     } catch (error) {
       // Error handled by useAuth hook's showError
     }
