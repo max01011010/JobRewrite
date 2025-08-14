@@ -196,9 +196,7 @@ const ResumeAnalyzer: React.FC = () => {
   return (
     <div className="relative flex size-full min-h-screen flex-col bg-white group/design-root overflow-x-hidden" style={{ fontFamily: 'Inter, "Noto Sans", sans-serif' }}>
       <div className="layout-container flex h-full grow flex-col">
-        {/* AppHeader removed from here as it's now global */}
-
-        <div className="flex flex-col items-center px-6 py-5 flex-1 justify-center"> {/* Added justify-center here */}
+        <div className="flex flex-col items-center px-6 py-5 flex-1"> {/* Removed justify-center */}
           {/* Analysis Results Section - Moved to top */}
           {(analysisSummary || overallAtsScore !== null) && (
             <div className="w-full max-w-[1000px] mt-4 p-6 border border-solid border-gray-300 rounded-md bg-gray-50 mb-6">
@@ -306,9 +304,8 @@ const ResumeAnalyzer: React.FC = () => {
               <span className="truncate">{isLoading ? "Analyzing..." : "Analyze Resume"}</span>
             </Button>
           </div>
+          <AppFooter /> {/* Moved AppFooter here */}
         </div>
-
-        <AppFooter />
       </div>
     </div>
   );
