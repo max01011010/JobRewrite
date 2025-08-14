@@ -200,9 +200,41 @@ const ResumeAnalyzer: React.FC = () => {
         <AppHeader />
 
         <div className="flex flex-col items-center px-6 py-5 flex-1">
-          <div className="w-full max-w-[1000px] border border-solid border-gray-300 rounded-md p-4 mb-6 bg-[#1E91D6] text-white text-center">
-            <p className="text-base font-medium">Note: This tool helps analyze your resume against a job description.</p>
-          </div>
+          {/* Analysis Results Section - Moved to top */}
+          {(analysisSummary || overallAtsScore !== null) && (
+            <div className="w-full max-w-[1000px] mt-4 p-6 border border-solid border-gray-300 rounded-md bg-gray-50 mb-6">
+              <h3 className="text-app-dark-text tracking-light text-2xl font-bold leading-tight text-center mb-4">Analysis Results</h3>
+              {overallAtsScore !== null && (
+                <div className="mb-4 text-center">
+                  <p className="text-lg font-semibold text-app-dark-text">Overall ATS Score:</p>
+                  <p className="text-4xl font-bold text-app-blue">{overallAtsScore}%</p>
+                </div>
+              )}
+              {(categoryScores || recommendations) && (
+                <div className="mb-4">
+                  <p className="text-lg font-semibold text-app-dark-text mb-2">Category Breakdown & Recommendations:</p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {categoryScores && Object.entries(categoryScores).map(([category, score]) => (
+                      <div key={category} className="bg-white p-4 rounded border border-gray-200 text-app-dark-text">
+                        <p className="font-medium text-lg capitalize mb-2">{category.replace(/([A-Z])/g, ' $1').trim()}: <span className="text-app-blue font-bold">{score}%</span></p>
+                        <p className="text-sm whitespace-pre-wrap">
+                          {recommendations?.[category as keyof AnalysisResult['recommendations']] || "No specific recommendation provided."}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {analysisSummary && (
+                <div>
+                  <p className="text-lg font-semibold text-app-dark-text mb-2">Summary:</p>
+                  <div className="bg-white p-4 rounded border border-gray-200 text-app-dark-text whitespace-pre-wrap">
+                    {analysisSummary}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-[1000px]">
             {/* Resume Input Section */}
@@ -273,42 +305,6 @@ const ResumeAnalyzer: React.FC = () => {
               <span className="truncate">{isLoading ? "Analyzing..." : "Analyze Resume"}</span>
             </Button>
           </div>
-
-          {/* Analysis Results Section */}
-          {(analysisSummary || overallAtsScore !== null) && (
-            <div className="w-full max-w-[1000px] mt-8 p-6 border border-solid border-gray-300 rounded-md bg-gray-50">
-              <h3 className="text-app-dark-text tracking-light text-2xl font-bold leading-tight text-center mb-4">Analysis Results</h3>
-              {overallAtsScore !== null && (
-                <div className="mb-4 text-center">
-                  <p className="text-lg font-semibold text-app-dark-text">Overall ATS Score:</p>
-                  <p className="text-4xl font-bold text-app-blue">{overallAtsScore}%</p>
-                </div>
-              )}
-              {(categoryScores || recommendations) && (
-                <div className="mb-4">
-                  <p className="text-lg font-semibold text-app-dark-text mb-2">Category Breakdown & Recommendations:</p>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {categoryScores && Object.entries(categoryScores).map(([category, score]) => (
-                      <div key={category} className="bg-white p-4 rounded border border-gray-200 text-app-dark-text">
-                        <p className="font-medium text-lg capitalize mb-2">{category.replace(/([A-Z])/g, ' $1').trim()}: <span className="text-app-blue font-bold">{score}%</span></p>
-                        <p className="text-sm whitespace-pre-wrap">
-                          {recommendations?.[category as keyof AnalysisResult['recommendations']] || "No specific recommendation provided."}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-              {analysisSummary && (
-                <div>
-                  <p className="text-lg font-semibold text-app-dark-text mb-2">Summary:</p>
-                  <div className="bg-white p-4 rounded border border-gray-200 text-app-dark-text whitespace-pre-wrap">
-                    {analysisSummary}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
         </div>
 
         <AppFooter />
