@@ -239,7 +239,7 @@ const ResumeAnalyzer: React.FC = () => {
             <div className="w-full max-w-[1000px] mt-4 p-6 border border-solid border-blue-200 rounded-md bg-blue-50 text-blue-800 mb-4">
               <h3 className="text-app-dark-text tracking-light text-2xl font-bold leading-tight text-center mb-4">Welcome to JobRewrite!</h3>
               <p className="text-base mb-4">
-                Our Resume Analyzer helps you optimize your resume for Applicant Tracking Systems (ATS) and provides actionable feedback to improve your job application. Simply upload or paste your resume and provide the job description you're applying for. Our AI will then compare your resume against the job requirements.
+                Our Resume Analyzer helps you optimize your resume for Applicant Tracking Systems (ATS) and provides actionable feedback to improve your job application. Submit your resume and the job description so our AI can give you recommendations and a score.
               </p>
               <p className="text-base font-semibold mb-2">We score your resume across these key categories:</p>
               <ul className="list-disc list-inside text-sm space-y-1">
@@ -249,6 +249,9 @@ const ResumeAnalyzer: React.FC = () => {
                 <li><span className="font-medium">Best Practices:</span> Assesses adherence to general professional standards like contact information, date formats, and LinkedIn presence.</li>
                 <li><span className="font-medium">Application Ready:</span> Provides an overall readiness assessment for the application process.</li>
               </ul>
+              <p className="text-xs mt-4 text-gray-600">
+                Note: Your resume details are not saved by this app. AI is used in the analysis process.
+              </p>
             </div>
           )}
 
