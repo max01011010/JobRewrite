@@ -22,66 +22,42 @@ const AppHeader: React.FC = () => {
       </div>
       <nav className="flex flex-1 justify-end gap-8">
         <div className="flex items-center gap-9">
-          {isAuthenticated ? (
-            <>
-              <Link
-                to="/"
-                className={cn(
-                  "text-app-dark-text text-sm font-medium leading-normal hover:text-app-blue transition-colors",
-                  location.pathname === '/' && "text-app-blue font-bold"
-                )}
-              >
-                Job Rewrite
-              </Link>
-              <Link
-                to="/resume-analyzer"
-                className={cn(
-                  "text-app-dark-text text-sm font-medium leading-normal hover:text-app-blue transition-colors",
-                  location.pathname === '/resume-analyzer' && "text-app-blue font-bold"
-                )}
-              >
-                Resume Analyzer
-              </Link>
-              <Link
-                to="/dashboard"
-                className={cn(
-                  "text-app-dark-text text-sm font-medium leading-normal hover:text-app-blue transition-colors",
-                  location.pathname === '/dashboard' && "text-app-blue font-bold"
-                )}
-              >
-                Dashboard
-              </Link>
-              <a className="text-app-dark-text text-sm font-medium leading-normal" href="https://www.maxabardo.work/" target="_blank" rel="noopener noreferrer">Made for free by Max A</a>
-              <Button
-                onClick={handleLogout}
-                variant="ghost"
-                className="text-app-dark-text text-sm font-medium leading-normal hover:text-app-blue transition-colors"
-              >
-                Logout
-              </Button>
-            </>
-          ) : (
-            <>
-              <Link
-                to="/login"
-                className={cn(
-                  "text-app-dark-text text-sm font-medium leading-normal hover:text-app-blue transition-colors",
-                  location.pathname === '/login' && "text-app-blue font-bold"
-                )}
-              >
-                Login
-              </Link>
-              <Link
-                to="/signup"
-                className={cn(
-                  "text-app-dark-text text-sm font-medium leading-normal hover:text-app-blue transition-colors",
-                  location.pathname === '/signup' && "text-app-blue font-bold"
-                )}
-              >
-                Sign Up
-              </Link>
-              <a className="text-app-dark-text text-sm font-medium leading-normal" href="https://www.maxabardo.work/" target="_blank" rel="noopener noreferrer">Made for free by Max A</a>
-            </>
+          <Link
+            to="/"
+            className={cn(
+              "text-app-dark-text text-sm font-medium leading-normal hover:text-app-blue transition-colors",
+              location.pathname === '/' && "text-app-blue font-bold"
+            )}
+          >
+            Job Rewrite
+          </Link>
+          <Link
+            to="/resume-analyzer"
+            className={cn(
+              "text-app-dark-text text-sm font-medium leading-normal hover:text-app-blue transition-colors",
+              location.pathname === '/resume-analyzer' && "text-app-blue font-bold"
+            )}
+          >
+            Resume Analyzer
+          </Link>
+          <Link
+            to="/dashboard"
+            className={cn(
+              "text-app-dark-text text-sm font-medium leading-normal hover:text-app-blue transition-colors",
+              location.pathname === '/dashboard' && "text-app-blue font-bold"
+            )}
+          >
+            Dashboard
+          </Link>
+          <a className="text-app-dark-text text-sm font-medium leading-normal" href="https://www.maxabardo.work/" target="_blank" rel="noopener noreferrer">Made for free by Max A</a>
+          {isAuthenticated && (
+            <Button
+              onClick={handleLogout}
+              variant="ghost"
+              className="text-app-dark-text text-sm font-medium leading-normal hover:text-app-blue transition-colors"
+            >
+              Logout
+            </Button>
           )}
         </div>
       </nav>

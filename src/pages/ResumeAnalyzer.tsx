@@ -16,10 +16,10 @@ import { UploadCloud, Clipboard } from 'lucide-react';
 import AppHeader from '@/components/AppHeader';
 import AppFooter from '@/components/AppFooter';
 import { extractResumeText } from '@/utils/fileExtractionApi';
-import { useAuth } from '@/hooks/use-auth'; // Import useAuth
+import { useAuth } from '@/hooks/use-auth';
 
 const ResumeAnalyzer: React.FC = () => {
-  const { user, isAuthenticated } = useAuth(); // Get user and isAuthenticated from auth context
+  const { user, isAuthenticated } = useAuth();
   const [resumeInputMode, setResumeInputMode] = useState<'upload' | 'paste'>('upload');
   const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [resumeText, setResumeText] = useState<string>('');
@@ -64,11 +64,6 @@ const ResumeAnalyzer: React.FC = () => {
   }, []);
 
   const handleAnalyze = async () => {
-    if (!isAuthenticated || !user) {
-      showError("Please log in to analyze resumes.");
-      return;
-    }
-
     let currentResumeContent = '';
     let resumeTitle = "Pasted Resume";
 
@@ -103,6 +98,7 @@ const ResumeAnalyzer: React.FC = () => {
 
     if (!jobDescription.trim()) {
       showError("Please enter a job description to compare against.");
+      setIsLoading(false); // Ensure loading is false if this check fails
       return;
     }
 
@@ -111,52 +107,57 @@ const ResumeAnalyzer: React.FC = () => {
     try {
       analysisToastId = showLoading("Analyzing resume and job description...");
 
-      // 1. Save resume and job description to GibsonAI
-      const resumeResponse = await createResume({
-        summary: currentResumeContent,
-        title: resumeTitle,
-        user_profile_id: user.id, // Use authenticated user's ID
-      });
-
-      const jobDescriptionResponse = await createJobDescription({
-        company_name: "User Input", // Placeholder
-        description: jobDescription,
-        title: "Job Description", // Placeholder
-        location: "N/A", // Placeholder
-        user_profile_id: user.id, // Use authenticated user's ID
-      });
-
-      // 2. Run analysis with ERNIE
+      // Run analysis with ERNIE
       const analysisResult = await analyzeResumeWithErnie(currentResumeContent, jobDescription);
       setAnalysisSummary(analysisResult.summary);
       setAtsScore(analysisResult.score);
 
-      // 3. Save analysis report, summary, and score to GibsonAI
-      const analysisReportResponse = await createAnalysisReport({
-        analyzed_by: user.id, // Use authenticated user's ID
-        job_description_id: jobDescriptionResponse.id,
-        resume_id: resumeResponse.id,
-      });
-
-      await createAnalysisSummary({
-        report_id: analysisReportResponse.id,
-        summary_text: analysisResult.summary,
-      });
-
-      await createAnalysisScore({
-        report_id: analysisReportResponse.id,
-        score: analysisResult.score,
-        section: "Overall ATS Score",
-      });
-
       dismissToast(analysisToastId);
-      showSuccess("Analysis complete and results saved!");
+      showSuccess("Analysis complete!");
+
+      // Save to GibsonAI only if authenticated
+      if (isAuthenticated && user) {
+        const resumeResponse = await createResume({
+          summary: currentResumeContent,
+          title: resumeTitle,
+          user_profile_id: user.id,
+        });
+
+        const jobDescriptionResponse = await createJobDescription({
+          company_name: "User Input", // Placeholder
+          description: jobDescription,
+          title: "Job Description", // Placeholder
+          location: "N/A", // Placeholder
+          user_profile_id: user.id,
+        });
+
+        const analysisReportResponse = await createAnalysisReport({
+          analyzed_by: user.id,
+          job_description_id: jobDescriptionResponse.id,
+          resume_id: resumeResponse.id,
+        });
+
+        await createAnalysisSummary({
+          report_id: analysisReportResponse.id,
+          summary_text: analysisResult.summary,
+        });
+
+        await createAnalysisScore({
+          report_id: analysisReportResponse.id,
+          score: analysisResult.score,
+          section: "Overall ATS Score",
+        });
+        showSuccess("Analysis results saved to your dashboard!");
+      } else {
+        showSuccess("Analysis complete! Log in to save your results to the dashboard.");
+      }
+
     } catch (error) {
       console.error("Error during analysis:", error);
       if (error instanceof Error && error.message.includes("TooManyRequestsError")) {
         showError("It looks like there are too many AI requests. Please try again in 2-5 minutes.", 60000);
       } else if (error instanceof Error && error.message.includes("GibsonAI API Error")) {
-        showError(`Failed to save data to GibsonAI: ${error.message}`);
+        showError(`Failed to save data to dashboard: ${error.message}`);
       } else {
         showError("Failed to perform analysis. Please check your inputs and try again.");
       }
@@ -184,10 +185,10 @@ const ResumeAnalyzer: React.FC = () => {
               <h3 className="text-app-dark-text tracking-light text-2xl font-bold leading-tight text-center">Your Resume</h3>
               <Tabs value={resumeInputMode} onValueChange={(value) => setResumeInputMode(value as 'upload' | 'paste')} className="w-full">
                 <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="upload" disabled={!isAuthenticated}>
+                  <TabsTrigger value="upload">
                     <UploadCloud className="mr-2 h-4 w-4" /> Upload File
                   </TabsTrigger>
-                  <TabsTrigger value="paste" disabled={!isAuthenticated}>
+                  <TabsTrigger value="paste">
                     <Clipboard className="mr-2 h-4 w-4" /> Paste Text
                   </TabsTrigger>
                 </TabsList>
@@ -208,7 +209,7 @@ const ResumeAnalyzer: React.FC = () => {
                       accept=".pdf,.doc,.docx"
                       onChange={handleFileChange}
                       className="hidden"
-                      disabled={isLoading || !isAuthenticated}
+                      disabled={isLoading}
                     />
                   </div>
                 </TabsContent>
@@ -218,7 +219,7 @@ const ResumeAnalyzer: React.FC = () => {
                     value={resumeText}
                     onChange={(e) => setResumeText(e.target.value)}
                     className="min-h-[200px] max-h-80 overflow-y-auto resize-none rounded text-app-dark-text focus:outline-0 focus:ring-0 border border-app-input-border bg-white focus:border-app-input-border placeholder:text-app-placeholder p-[15px] text-base font-normal leading-normal"
-                    disabled={isLoading || !isAuthenticated}
+                    disabled={isLoading}
                   />
                 </TabsContent>
               </Tabs>
@@ -232,7 +233,7 @@ const ResumeAnalyzer: React.FC = () => {
                 value={jobDescription}
                 onChange={(e) => setJobDescription(e.target.value)}
                 className="min-h-[200px] max-h-80 overflow-y-auto resize-none rounded text-app-dark-text focus:outline-0 focus:ring-0 border border-app-input-border bg-white focus:border-app-input-border placeholder:text-app-placeholder p-[15px] text-base font-normal leading-normal"
-                disabled={isLoading || !isAuthenticated}
+                disabled={isLoading}
               />
             </div>
           </div>
@@ -241,7 +242,7 @@ const ResumeAnalyzer: React.FC = () => {
           <div className="flex justify-center w-full max-w-[1000px] mt-8">
             <Button
               onClick={handleAnalyze}
-              disabled={isLoading || !isAuthenticated || (resumeInputMode === 'upload' && !resumeFile) || (resumeInputMode === 'paste' && !resumeText.trim()) || !jobDescription.trim()}
+              disabled={isLoading || (resumeInputMode === 'upload' && !resumeFile) || (resumeInputMode === 'paste' && !resumeText.trim()) || !jobDescription.trim()}
               className="flex min-w-[250px] max-w-[600px] cursor-pointer items-center justify-center overflow-hidden rounded h-10 px-4 bg-app-blue text-white text-sm font-bold leading-normal tracking-[0.015em]"
             >
               <span className="truncate">{isLoading ? "Analyzing..." : "Analyze Resume"}</span>

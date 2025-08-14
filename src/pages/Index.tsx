@@ -5,21 +5,16 @@ import { Button } from '@/components/ui/button';
 import { rewriteJobDescription } from '@/utils/ai';
 import { showLoading, showSuccess, showError, dismissToast } from '@/utils/toast';
 import AppFooter from '@/components/AppFooter';
-import { useAuth } from '@/hooks/use-auth'; // Import useAuth
-import { createResume, createJobDescription } from '@/utils/gibsonAiApi'; // Import GibsonAI API functions
+import { useAuth } from '@/hooks/use-auth';
+import { createResume, createJobDescription } from '@/utils/gibsonAiApi';
 
 const Index: React.FC = () => {
-  const { user, isAuthenticated } = useAuth(); // Get user and isAuthenticated from auth context
+  const { user, isAuthenticated } = useAuth();
   const [jobDescription, setJobDescription] = useState<string>('');
   const [rewrittenResume, setRewrittenResume] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const handleRewrite = async () => {
-    if (!isAuthenticated || !user) {
-      showError("Please log in to rewrite job descriptions.");
-      return;
-    }
-
     if (!jobDescription.trim()) {
       showError("Please enter a job description to rewrite.");
       return;
@@ -33,25 +28,30 @@ const Index: React.FC = () => {
       setRewrittenResume(rewrittenText);
       showSuccess("Job description rewritten successfully!");
 
-      // Save original job description and rewritten resume to GibsonAI
-      await createJobDescription({
-        company_name: "User Input", // Placeholder
-        description: jobDescription,
-        title: "Original Job Description", // Placeholder
-        location: "N/A", // Placeholder
-        user_profile_id: user.id, // Use authenticated user's ID
-      });
+      // Save original job description and rewritten resume to GibsonAI only if authenticated
+      if (isAuthenticated && user) {
+        await createJobDescription({
+          company_name: "User Input", // Placeholder
+          description: jobDescription,
+          title: "Original Job Description", // Placeholder
+          location: "N/A", // Placeholder
+          user_profile_id: user.id,
+        });
 
-      await createResume({
-        summary: rewrittenText,
-        title: "Rewritten Job Description", // Placeholder
-        user_profile_id: user.id, // Use authenticated user's ID
-      });
+        await createResume({
+          summary: rewrittenText,
+          title: "Rewritten Job Description", // Placeholder
+          user_profile_id: user.id,
+        });
+        showSuccess("Your rewrite has been saved to your dashboard!");
+      } else {
+        showSuccess("Rewrite complete! Log in to save your results to the dashboard.");
+      }
 
     } catch (error) {
       console.error("Error during rewrite:", error);
       if (error instanceof Error && error.message === "TooManyRequestsError") {
-        showError("It looks like there are too many rewrite requests on the server. Please try again in 2-5 minutes.", 60000); // 60 seconds
+        showError("It looks like there are too many rewrite requests on the server. Please try again in 2-5 minutes.", 60000);
       } else {
         showError("Failed to rewrite job description. Please try again.");
       }
@@ -88,13 +88,13 @@ const Index: React.FC = () => {
                   placeholder="Enter one of your previous roles listed in your resume or the job description of your previous role."
                   value={jobDescription}
                   onChange={(e) => setJobDescription(e.target.value)}
-                  disabled={isLoading || !isAuthenticated}
+                  disabled={isLoading}
                 />
               </div>
               <div className="flex px-4 py-3 justify-center">
                 <Button
                   onClick={handleRewrite}
-                  disabled={isLoading || !isAuthenticated}
+                  disabled={isLoading}
                   className="flex min-w-[250px] max-w-[600px] cursor-pointer items-center justify-center overflow-hidden rounded h-10 px-4 bg-app-blue text-white text-sm font-bold leading-normal tracking-[0.015em]"
                 >
                   <span className="truncate">{isLoading ? "Rewriting..." : "Rewrite"}</span>

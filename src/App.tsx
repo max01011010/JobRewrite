@@ -11,7 +11,7 @@ import SignupPage from "./pages/SignupPage";
 import VerifyEmailPage from "./pages/VerifyEmailPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthProvider } from "./hooks/use-auth";
-import DashboardPage from "./pages/DashboardPage"; // Import DashboardPage
+import DashboardPage from "./pages/DashboardPage";
 
 const queryClient = new QueryClient();
 
@@ -24,15 +24,16 @@ const App = () => (
         <BrowserRouter>
           <AuthProvider>
             <Routes>
+              {/* Public Routes */}
+              <Route path="/" element={<Index />} />
+              <Route path="/resume-analyzer" element={<ResumeAnalyzer />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/signup" element={<SignupPage />} />
               <Route path="/verify-email" element={<VerifyEmailPage />} />
               
               {/* Protected Routes */}
               <Route element={<ProtectedRoute />}>
-                <Route path="/" element={<Index />} />
-                <Route path="/resume-analyzer" element={<ResumeAnalyzer />} />
-                <Route path="/dashboard" element={<DashboardPage />} /> {/* New Dashboard route */}
+                <Route path="/dashboard" element={<DashboardPage />} />
               </Route>
 
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
