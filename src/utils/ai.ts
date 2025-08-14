@@ -139,6 +139,13 @@ export interface AnalysisResult {
     bestPractices: number;
     applicationReady: number;
   };
+  recommendations: {
+    content: string;
+    format: string;
+    optimization: string;
+    bestPractices: string;
+    applicationReady: string;
+  };
 }
 
 export async function analyzeResumeWithErnie(resumeText: string, jobDescription: string): Promise<AnalysisResult> {
@@ -157,6 +164,8 @@ export async function analyzeResumeWithErnie(resumeText: string, jobDescription:
   
   Based on the following categories and their considerations, provide a short, concise summary (max 3-4 sentences) of how well the resume matches the job description, highlighting key strengths and weaknesses. Then, provide an overall ATS compatibility score as a percentage (0-100), and a score for each of the five major categories (Content, Format, Optimization, Best Practices, Application Ready) as a percentage (0-100).
   
+  For each of the five major categories, also provide a concise recommendation (1-2 sentences) on how to improve the score in that specific category.
+  
   Categories and Considerations:
   
   Content: Includes all individual sections and overall quality. Focus on clarity, meaning, avoiding generic buzzwords or weak verbs.
@@ -164,31 +173,31 @@ export async function analyzeResumeWithErnie(resumeText: string, jobDescription:
   - Punctuated bullet points: Proper punctuation for clarity, readability, and professionalism.
   - Quantified bullet points: Include numerical data for credibility and impact.
   - Incorrect number of bullet points: Aim for 3-10 bullet points total across the resume, and 3-6 per experience.
-  - Weak bullet points: Avoid dull language, lack of achievements/skills, and missing results.
-  - Buzzwords: Avoid trendy terms that make you sound generic.
-  - Personal pronouns: Exclude "I," "my," "mine," etc.
-  - Passive voice: Use active voice to highlight contributions.
-  - Filler words: Avoid "just," "very," "really," etc.
+  - Weak bullet points: Just like tasteless tofu - they lack flavor, fail to highlight achievements or skills, use dull language, and lack results or examples, leaving employers unimpressed and hungry for more information.
+  - Buzzwords: Trendy terms or phrases in resumes can make job seekers sound generic and unoriginal, failing to effectively highlight their unique skills and qualifications.‍
+  - Personal pronouns: Leave personal pronouns (I, my, mine, etc) out of your resume. Keep the spotlight on your skills and accomplishments to show what you bring to the table without any distractions.‍
+  - Passive voice: Using passive voice in your resume can make it harder for employers to identify your specific contributions and responsibilities. Always use an active voice for an engaging touch.‍
+  - Filler words: Forget filler words (just, very, really, etc). Using these can dilute the impact of your statements, leaving you sounding less confident and less professional.
   
   Format: Focus on visual presentation and ATS compatibility.
   - Resume template: Use ATS-friendly designs.
   - Page length: 1-page is best; 2-pages only for Director/Executive roles.
   - Font size: Recommended 8.5-9.5pts.
-  - Bullet points: Keep 3-6 per experience.
+  - Bullet points: These can be too many or too few! We always suggest keeping them in a range of 3 - 6 per experience.
   
   Optimization: Tailoring for specific roles and industries.
-  - AI Keyword Targeting: Align resume with job title and description keywords.
-  - Experience: Match resume to experience level (Intern, Entry, Mid-Senior, etc.).
-  - Industry: Speak the language and meet expectations of the specific field.
+  - AI Keyword Targeting: Add a job title and description of the role you’re interested in to tailor your resume with targeted keywords (perfect for ATS applications).‍
+  - Experience: Tailor your resume to match your experience level: Intern, Entry, Associate, Junior, Mid-Senior, Director, or Executive.‍
+  - Industry: Speak the language of your industry and optimize your resume to match the needs and expectations of that field.
   
   Best Practices: General professional standards.
-  - Locations: Add geographical locations to experiences.
-  - Email: Include a professional email address.
-  - Date format: Use written month format (e.g., January 2023).
-  - Resume name: Simple and professional (e.g., "FirstName LastName Resume").
-  - Word count: Stay within 400-600 words.
-  - LinkedIn URL: Include professional LinkedIn profile URL.
-  - Skills format: Categorize skills (hard, soft, language, etc.).
+  - Locations: Add a geographical location to your work, involvement, and education experiences to give employers valuable insight into your adaptability and validate your experience.
+  - Email: Your email address is the key to connecting with future employers and landing an interview - share it!
+  - Date format: List dates in a written month format (January 2023) to quickly grasp your timeline of experience and enhance readability.
+  - Resume name: Keep it simple and professional with your full name and "resume" so employers can easily recognize and remember your application, avoiding any confusion or awkward ‘MyResume’ moments.
+  - Word count: Stay bite-sized with your resume by keeping your total word count in the range of 400-600 words.
+  - LinkedIn URL: Give a backstage pass to your professional life with your LinkedIn URL to show beyond what's listed on your resume (in/fullname).
+  - Skills format: Just like organizing your toolkit, make it easier for employers to quickly identify your strengths and expertise by separating your skills into categories: hard, soft, language, front-end, and more.
   
   Application Ready: Overall readiness for the application process, encompassing all other categories.
   
@@ -202,6 +211,13 @@ export async function analyzeResumeWithErnie(resumeText: string, jobDescription:
       "optimization": [Optimization score as a number, e.g., 95],
       "bestPractices": [Best Practices score as a number, e.g., 75],
       "applicationReady": [Application Ready score as a number, e.g., 88]
+    },
+    "recommendations": {
+      "content": "Recommendation for content improvement.",
+      "format": "Recommendation for format improvement.",
+      "optimization": "Recommendation for optimization improvement.",
+      "bestPractices": "Recommendation for best practices improvement.",
+      "applicationReady": "Recommendation for application readiness improvement."
     }
   }
   `;
@@ -267,7 +283,13 @@ export async function analyzeResumeWithErnie(resumeText: string, jobDescription:
             typeof parsedResult.categoryScores.format === 'number' &&
             typeof parsedResult.categoryScores.optimization === 'number' &&
             typeof parsedResult.categoryScores.bestPractices === 'number' &&
-            typeof parsedResult.categoryScores.applicationReady === 'number'
+            typeof parsedResult.categoryScores.applicationReady === 'number' &&
+            typeof parsedResult.recommendations === 'object' &&
+            typeof parsedResult.recommendations.content === 'string' &&
+            typeof parsedResult.recommendations.format === 'string' &&
+            typeof parsedResult.recommendations.optimization === 'string' &&
+            typeof parsedResult.recommendations.bestPractices === 'string' &&
+            typeof parsedResult.recommendations.applicationReady === 'string'
           ) {
             return {
               summary: parsedResult.summary,
@@ -279,9 +301,16 @@ export async function analyzeResumeWithErnie(resumeText: string, jobDescription:
                 bestPractices: Math.max(0, Math.min(100, Math.round(parsedResult.categoryScores.bestPractices))),
                 applicationReady: Math.max(0, Math.min(100, Math.round(parsedResult.categoryScores.applicationReady))),
               },
+              recommendations: {
+                content: parsedResult.recommendations.content,
+                format: parsedResult.recommendations.format,
+                optimization: parsedResult.recommendations.optimization,
+                bestPractices: parsedResult.recommendations.bestPractices,
+                applicationReady: parsedResult.recommendations.applicationReady,
+              },
             };
           } else {
-            throw new Error("Parsed JSON does not contain expected 'summary', 'overallScore', and 'categoryScores' fields with correct types.");
+            throw new Error("Parsed JSON does not contain expected 'summary', 'overallScore', 'categoryScores', and 'recommendations' fields with correct types.");
           }
         } catch (jsonError) {
           console.warn("AI response was not valid JSON, attempting fallback parsing:", rawContent);
@@ -294,6 +323,13 @@ export async function analyzeResumeWithErnie(resumeText: string, jobDescription:
           const bestPracticesScoreMatch = rawContent.match(/"bestPractices":\s*(\d+)/);
           const applicationReadyScoreMatch = rawContent.match(/"applicationReady":\s*(\d+)/);
 
+          const contentRecMatch = rawContent.match(/"content":\s*"(.*?)"/s);
+          const formatRecMatch = rawContent.match(/"format":\s*"(.*?)"/s);
+          const optimizationRecMatch = rawContent.match(/"optimization":\s*"(.*?)"/s);
+          const bestPracticesRecMatch = rawContent.match(/"bestPractices":\s*"(.*?)"/s);
+          const applicationReadyRecMatch = rawContent.match(/"applicationReady":\s*"(.*?)"/s);
+
+
           const summary = summaryMatch ? summaryMatch[1].replace(/\\n/g, '\n').replace(/\\"/g, '"') : "Could not extract summary.";
           const overallScore = overallScoreMatch ? Math.max(0, Math.min(100, parseInt(overallScoreMatch[1], 10))) : 0;
           const categoryScores = {
@@ -303,9 +339,17 @@ export async function analyzeResumeWithErnie(resumeText: string, jobDescription:
             bestPractices: bestPracticesScoreMatch ? Math.max(0, Math.min(100, parseInt(bestPracticesScoreMatch[1], 10))) : 0,
             applicationReady: applicationReadyScoreMatch ? Math.max(0, Math.min(100, parseInt(applicationReadyScoreMatch[1], 10))) : 0,
           };
+          const recommendations = {
+            content: contentRecMatch ? contentRecMatch[1].replace(/\\n/g, '\n').replace(/\\"/g, '"') : "No recommendation.",
+            format: formatRecMatch ? formatRecMatch[1].replace(/\\n/g, '\n').replace(/\\"/g, '"') : "No recommendation.",
+            optimization: optimizationRecMatch ? optimizationRecMatch[1].replace(/\\n/g, '\n').replace(/\\"/g, '"') : "No recommendation.",
+            bestPractices: bestPracticesRecMatch ? bestPracticesRecMatch[1].replace(/\\n/g, '\n').replace(/\\"/g, '"') : "No recommendation.",
+            applicationReady: applicationReadyRecMatch ? applicationReadyRecMatch[1].replace(/\\n/g, '\n').replace(/\\"/g, '"') : "No recommendation.",
+          };
+
 
           if (summaryMatch && overallScoreMatch) {
-            return { summary, overallScore, categoryScores };
+            return { summary, overallScore, categoryScores, recommendations };
           } else {
             throw new Error("Failed to parse AI response for summary and scores.");
           }

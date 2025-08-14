@@ -9,6 +9,7 @@ import {
   createAnalysisReport,
   createAnalysisSummary,
   createAnalysisScore,
+  createAnalysisRecommendation, // Import new function
 } from '@/utils/gibsonAiApi';
 import { analyzeResumeWithErnie, AnalysisResult } from '@/utils/ai';
 import { showLoading, showSuccess, showError, dismissToast } from '@/utils/toast';
@@ -28,6 +29,7 @@ const ResumeAnalyzer: React.FC = () => {
   const [analysisSummary, setAnalysisSummary] = useState<string>('');
   const [overallAtsScore, setOverallAtsScore] = useState<number | null>(null);
   const [categoryScores, setCategoryScores] = useState<AnalysisResult['categoryScores'] | null>(null);
+  const [recommendations, setRecommendations] = useState<AnalysisResult['recommendations'] | null>(null); // New state for recommendations
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -113,6 +115,7 @@ const ResumeAnalyzer: React.FC = () => {
       setAnalysisSummary(analysisResult.summary);
       setOverallAtsScore(analysisResult.overallScore);
       setCategoryScores(analysisResult.categoryScores);
+      setRecommendations(analysisResult.recommendations); // Set recommendations state
 
       dismissToast(analysisToastId);
       showSuccess("Analysis complete!");
@@ -159,6 +162,16 @@ const ResumeAnalyzer: React.FC = () => {
             section: category.charAt(0).toUpperCase() + category.slice(1), // Capitalize first letter
           });
         }
+
+        // Save recommendations
+        for (const [category, recommendationText] of Object.entries(analysisResult.recommendations)) {
+          await createAnalysisRecommendation({
+            report_id: analysisReportResponse.id,
+            category: category.charAt(0).toUpperCase() + category.slice(1), // Capitalize first letter
+            recommendation_text: recommendationText,
+          });
+        }
+
         showSuccess("Analysis results saved to your dashboard!");
       } else {
         showSuccess("Analysis complete! Log in to save your results to the dashboard.");
@@ -279,6 +292,19 @@ const ResumeAnalyzer: React.FC = () => {
                       <div key={category} className="bg-white p-3 rounded border border-gray-200 text-app-dark-text">
                         <p className="font-medium capitalize">{category.replace(/([A-Z])/g, ' $1').trim()}:</p>
                         <p className="text-xl font-bold text-app-blue">{score}%</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {recommendations && (
+                <div className="mb-4">
+                  <p className="text-lg font-semibold text-app-dark-text mb-2">Recommendations:</p>
+                  <div className="grid grid-cols-1 gap-4">
+                    {Object.entries(recommendations).map(([category, recommendationText]) => (
+                      <div key={category} className="bg-white p-3 rounded border border-gray-200 text-app-dark-text">
+                        <p className="font-medium capitalize">{category.replace(/([A-Z])/g, ' $1').trim()}:</p>
+                        <p className="text-sm whitespace-pre-wrap">{recommendationText}</p>
                       </div>
                     ))}
                   </div>

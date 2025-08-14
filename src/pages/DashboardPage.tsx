@@ -8,13 +8,15 @@ import {
   getResume,
   getJobDescription,
   getAnalysisSummaryByReportId,
-  getAnalysisScoresByReportId, // Changed to getAnalysisScoresByReportId
+  getAnalysisScoresByReportId,
+  getAnalysisRecommendationsByReportId, // Import new function
   AnalysisReportOut,
   AnalysisReportStatus,
   ResumeOut,
   JobDescriptionOut,
   AnalysisSummaryOut,
   AnalysisScoreOut,
+  AnalysisRecommendationOut, // Import new interface
 } from '@/utils/gibsonAiApi';
 import { showLoading, showSuccess, showError, dismissToast } from '@/utils/toast';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -38,7 +40,8 @@ const DashboardPage: React.FC = () => {
   const [detailedJobDescription, setDetailedJobDescription] = useState<JobDescriptionOut | null>(null);
   const [detailedAnalysisSummary, setDetailedAnalysisSummary] = useState<AnalysisSummaryOut | null>(null);
   const [detailedOverallAtsScore, setDetailedOverallAtsScore] = useState<AnalysisScoreOut | null>(null);
-  const [detailedCategoryScores, setDetailedCategoryScores] = useState<Record<string, number> | null>(null); // New state for category scores
+  const [detailedCategoryScores, setDetailedCategoryScores] = useState<Record<string, number> | null>(null);
+  const [detailedRecommendations, setDetailedRecommendations] = useState<Record<string, string> | null>(null); // New state for recommendations
   const [isViewingDetails, setIsViewingDetails] = useState<boolean>(false);
   const [isLoadingDetails, setIsLoadingDetails] = useState<boolean>(false);
 
@@ -92,16 +95,18 @@ const DashboardPage: React.FC = () => {
     setDetailedJobDescription(null);
     setDetailedAnalysisSummary(null);
     setDetailedOverallAtsScore(null);
-    setDetailedCategoryScores(null); // Reset category scores
+    setDetailedCategoryScores(null);
+    setDetailedRecommendations(null); // Reset recommendations
 
     let toastId: string | number | undefined;
     try {
       toastId = showLoading("Loading report details...");
-      const [resume, jobDescription, summary, allScores] = await Promise.all([
+      const [resume, jobDescription, summary, allScores, allRecommendations] = await Promise.all([
         getResume(report.resume_id),
         getJobDescription(report.job_description_id),
         getAnalysisSummaryByReportId(report.id),
-        getAnalysisScoresByReportId(report.id), // Fetch all scores
+        getAnalysisScoresByReportId(report.id),
+        getAnalysisRecommendationsByReportId(report.id), // Fetch recommendations
       ]);
       setDetailedResume(resume);
       setDetailedJobDescription(jobDescription);
@@ -115,6 +120,12 @@ const DashboardPage: React.FC = () => {
         categories[s.section] = s.score;
       });
       setDetailedCategoryScores(categories);
+
+      const recommendationsMap: Record<string, string> = {};
+      allRecommendations.forEach(rec => {
+        recommendationsMap[rec.category] = rec.recommendation_text;
+      });
+      setDetailedRecommendations(recommendationsMap);
 
       showSuccess("Report details loaded!");
     } catch (err) {
@@ -326,6 +337,19 @@ const DashboardPage: React.FC = () => {
                       <div key={category} className="bg-white p-3 rounded border border-gray-200 text-app-dark-text">
                         <p className="font-medium">{category}:</p>
                         <p className="text-xl font-bold text-app-blue">{score}%</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {detailedRecommendations && Object.keys(detailedRecommendations).length > 0 && (
+                <div className="md:col-span-2">
+                  <h3 className="text-lg font-semibold mb-2">Recommendations</h3>
+                  <div className="grid grid-cols-1 gap-4">
+                    {Object.entries(detailedRecommendations).map(([category, recommendationText]) => (
+                      <div key={category} className="bg-white p-3 rounded border border-gray-200 text-app-dark-text">
+                        <p className="font-medium capitalize">{category.replace(/([A-Z])/g, ' $1').trim()}:</p>
+                        <p className="text-sm whitespace-pre-wrap">{recommendationText}</p>
                       </div>
                     ))}
                   </div>

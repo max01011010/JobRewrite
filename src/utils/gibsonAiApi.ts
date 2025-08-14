@@ -202,3 +202,28 @@ export async function createAnalysisScore(data: AnalysisScoreIn): Promise<Analys
 export async function getAnalysisScoresByReportId(reportId: number): Promise<AnalysisScoreOut[]> {
   return callGibsonAiApi<AnalysisScoreOut[]>("/analysis-score", "GET", undefined, { report_id: reportId });
 }
+
+// --- Analysis Recommendation Endpoints ---
+interface AnalysisRecommendationIn {
+  report_id: number;
+  category: string; // e.g., "Content", "Format"
+  recommendation_text: string;
+}
+
+export interface AnalysisRecommendationOut {
+  id: number;
+  uuid: string;
+  report_id: number;
+  category: string;
+  recommendation_text: string;
+  date_created: string;
+  date_updated: string | null;
+}
+
+export async function createAnalysisRecommendation(data: AnalysisRecommendationIn): Promise<AnalysisRecommendationOut> {
+  return callGibsonAiApi<AnalysisRecommendationOut>("/analysis-recommendation", "POST", data);
+}
+
+export async function getAnalysisRecommendationsByReportId(reportId: number): Promise<AnalysisRecommendationOut[]> {
+  return callGibsonAiApi<AnalysisRecommendationOut[]>("/analysis-recommendation", "GET", undefined, { report_id: reportId });
+}
