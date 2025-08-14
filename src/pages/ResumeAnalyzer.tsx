@@ -198,10 +198,10 @@ const ResumeAnalyzer: React.FC = () => {
   return (
     <div className="relative flex size-full min-h-screen flex-col bg-white group/design-root overflow-x-hidden" style={{ fontFamily: 'Inter, "Noto Sans", sans-serif' }}>
       <div className="layout-container flex h-full grow flex-col">
-        <div className="flex flex-col items-center px-6 py-4 flex-1"> {/* Changed py-5 to py-4, removed justify-center */}
+        <div className="flex flex-col items-center px-6 py-4 flex-1">
           {/* Analysis Results Section or Informative Section */}
           {hasAnalysisResults ? (
-            <div className="w-full max-w-[1000px] mt-4 p-6 border border-solid border-gray-300 rounded-md bg-gray-50 mb-4"> {/* Changed mb-6 to mb-4 */}
+            <div className="w-full max-w-[1000px] mt-4 p-6 border border-solid border-gray-300 rounded-md bg-gray-50 mb-4">
               <h3 className="text-app-dark-text tracking-light text-2xl font-bold leading-tight text-center mb-4">Analysis Results</h3>
               {overallAtsScore !== null && (
                 <div className="mb-4 text-center">
@@ -236,8 +236,8 @@ const ResumeAnalyzer: React.FC = () => {
               )}
             </div>
           ) : (
-            <div className="w-full max-w-[1000px] mt-4 p-6 border border-solid border-blue-200 rounded-md bg-blue-50 text-blue-800 mb-4"> {/* Changed mb-6 to mb-4 */}
-              <h3 className="text-app-dark-text tracking-light text-2xl font-bold leading-tight text-center mb-4">Welcome to the Resume Analyzer!</h3>
+            <div className="w-full max-w-[1000px] mt-4 p-6 border border-solid border-blue-200 rounded-md bg-blue-50 text-blue-800 mb-4">
+              <h3 className="text-app-dark-text tracking-light text-2xl font-bold leading-tight text-center mb-4">Welcome to JobRewrite!</h3>
               <p className="text-base mb-4">
                 Our Resume Analyzer helps you optimize your resume for Applicant Tracking Systems (ATS) and provides actionable feedback to improve your job application. Simply upload or paste your resume and provide the job description you're applying for. Our AI will then compare your resume against the job requirements.
               </p>
@@ -312,7 +312,7 @@ const ResumeAnalyzer: React.FC = () => {
           </div>
 
           {/* Analyze Button */}
-          <div className="flex justify-center w-full max-w-[1000px] mt-6"> {/* Changed mt-8 to mt-6 */}
+          <div className="flex justify-center w-full max-w-[1000px] mt-6">
             <Button
               onClick={handleAnalyze}
               disabled={isLoading || (resumeInputMode === 'upload' && !resumeFile) || (resumeInputMode === 'paste' && !resumeText.trim()) || !jobDescription.trim()}

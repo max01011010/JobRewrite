@@ -38,7 +38,7 @@ const AppHeader: React.FC = () => {
               location.pathname === '/job-rewrite' && "text-app-blue font-bold"
             )}
           >
-            Job Rewrite
+            Rewrite
           </Link>
           
           <Link
