@@ -6,12 +6,19 @@ import { showLoading, showSuccess, showError, dismissToast } from '@/utils/toast
 import AppFooter from '@/components/AppFooter';
 import { useAuth } from '@/hooks/use-auth';
 import { createResume, createJobDescription } from '@/utils/gibsonAiApi';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+
+interface RewriteHistoryEntry {
+  previousRole: string;
+  rewrittenRole: string;
+}
 
 const Index: React.FC = () => {
   const { user, isAuthenticated } = useAuth();
   const [jobDescription, setJobDescription] = useState<string>('');
   const [rewrittenResume, setRewrittenResume] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [rewriteHistory, setRewriteHistory] = useState<RewriteHistoryEntry[]>([]); // New state for history
 
   const handleRewrite = async () => {
     if (!jobDescription.trim()) {
@@ -26,6 +33,12 @@ const Index: React.FC = () => {
       const rewrittenText = await rewriteJobDescription(jobDescription);
       setRewrittenResume(rewrittenText);
       showSuccess("Job description rewritten successfully!");
+
+      // Add to session history, keeping only the 3 most recent
+      setRewriteHistory(prevHistory => {
+        const newHistory = [{ previousRole: jobDescription, rewrittenRole: rewrittenText }, ...prevHistory];
+        return newHistory.slice(0, 3);
+      });
 
       // Save original job description and rewritten resume to GibsonAI only if authenticated
       if (isAuthenticated && user) {
@@ -74,7 +87,6 @@ const Index: React.FC = () => {
   return (
     <div className="relative flex size-full min-h-screen flex-col bg-white group/design-root overflow-x-hidden" style={{ fontFamily: 'Inter, "Noto Sans", sans-serif' }}>
       <div className="layout-container flex h-full grow flex-col">
-        {/* AppHeader removed from here as it's now global */}
         <div className="flex flex-col items-center px-6 py-5">
           <div className="w-full max-w-[1000px] border border-solid border-gray-300 rounded-md p-4 mb-6 bg-[#1E91D6] text-white text-center">
             <p className="text-base font-medium">Note: Please replace the placeholder metrics provided to align with real data you've achieved and gathered.</p>
@@ -122,6 +134,34 @@ const Index: React.FC = () => {
               </div>
             </div>
           </div>
+
+          {/* Session History Section */}
+          {rewriteHistory.length > 0 && (
+            <div className="w-full max-w-[1000px] mt-8 p-6 border border-solid border-gray-300 rounded-md bg-gray-50">
+              <h3 className="text-app-dark-text tracking-light text-2xl font-bold leading-tight text-center mb-4">Recent Rewrites (Current Session)</h3>
+              <p className="text-sm text-gray-600 text-center mb-4">
+                This log is only available for your review during this visit and will not be saved.
+              </p>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-1/2">Previous Role</TableHead>
+                      <TableHead className="w-1/2">Rewritten Role</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {rewriteHistory.map((entry, index) => (
+                      <TableRow key={index}>
+                        <TableCell className="align-top whitespace-pre-wrap max-w-xs overflow-hidden text-ellipsis">{entry.previousRole}</TableCell>
+                        <TableCell className="align-top whitespace-pre-wrap max-w-xs overflow-hidden text-ellipsis">{entry.rewrittenRole}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+          )}
         </div>
         <AppFooter />
       </div>
