@@ -88,8 +88,14 @@ const Index: React.FC = () => {
     <div className="relative flex size-full min-h-screen flex-col bg-white group/design-root overflow-x-hidden" style={{ fontFamily: 'Inter, "Noto Sans", sans-serif' }}>
       <div className="layout-container flex h-full grow flex-col">
         <div className="flex flex-col items-center px-6 py-5">
-          <div className="w-full max-w-[1000px] border border-solid border-gray-300 rounded-md p-4 mb-6 bg-[#1E91D6] text-white text-center">
-            <p className="text-base font-medium">Note: Please replace the placeholder metrics provided to align with real data you've achieved and gathered.</p>
+          {/* New Introduction Section */}
+          <div className="w-full max-w-[1000px] mt-4 p-6 border border-solid border-blue-200 rounded-md bg-blue-50 text-blue-800 mb-4">
+            <p className="text-base mb-4">
+              Our Rewrite tool helps you transform your existing resume bullet points or job descriptions into powerful, ATS-optimized statements with measurable outcomes. Simply enter a role from your resume or a job description of your current or previous role, and our AI will provide suggestions to enhance your bullet points with relevant, quantifiable results.
+            </p>
+            <p className="text-base font-semibold">
+              For your convenience, this page will display a log of your 3 most recent submissions during this session. Please note that these results are not saved permanently and will be cleared when you close or refresh the page.
+            </p>
           </div>
           <div className="gap-1 flex flex-1 w-full">
             <div className="layout-content-container flex flex-col flex-1">
