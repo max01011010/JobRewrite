@@ -8,6 +8,7 @@ import NotFound from "./pages/NotFound";
 import ResumeAnalyzer from "./pages/ResumeAnalyzer";
 import LoginPage from "./pages/LoginPage"; // Import LoginPage
 import SignupPage from "./pages/SignupPage"; // Import SignupPage
+import VerifyEmailPage from "./pages/VerifyEmailPage"; // Import VerifyEmailPage
 import ProtectedRoute from "./components/ProtectedRoute"; // Import ProtectedRoute
 import { AuthProvider } from "./hooks/use-auth"; // Import AuthProvider
 
@@ -24,6 +25,7 @@ const App = () => (
             <Routes>
               <Route path="/login" element={<LoginPage />} />
               <Route path="/signup" element={<SignupPage />} />
+              <Route path="/verify-email" element={<VerifyEmailPage />} /> {/* New email verification route */}
               
               {/* Protected Routes */}
               <Route element={<ProtectedRoute />}>

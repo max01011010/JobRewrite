@@ -57,4 +57,11 @@ export class AuthClient {
   logout() {
     return this.json<Ok>("/auth/logout", { method: "POST" });
   }
+
+  // New method for email verification
+  verifyEmail(token: string) {
+    return this.json<Ok>(`/auth/verify-email?token=${token}`, {
+      method: "GET",
+    });
+  }
 }
