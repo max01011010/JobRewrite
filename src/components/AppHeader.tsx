@@ -40,6 +40,8 @@ const AppHeader: React.FC = () => {
           >
             Job Rewrite
           </Link>
+          {/* Dashboard, Login, and Signup links are removed while under construction */}
+          {/*
           <Link
             to="/dashboard"
             className={cn(
@@ -49,6 +51,7 @@ const AppHeader: React.FC = () => {
           >
             Dashboard
           </Link>
+          */}
           <a className="text-app-dark-text text-sm font-medium leading-normal" href="https://www.maxabardo.work/" target="_blank" rel="noopener noreferrer">Made for free by Max A</a>
           {isAuthenticated && (
             <Button
@@ -59,6 +62,30 @@ const AppHeader: React.FC = () => {
               Logout
             </Button>
           )}
+          {/*
+          {!isAuthenticated && (
+            <>
+              <Link
+                to="/login"
+                className={cn(
+                  "text-app-dark-text text-sm font-medium leading-normal hover:text-app-blue transition-colors",
+                  location.pathname === '/login' && "text-app-blue font-bold"
+                )}
+              >
+                Login
+              </Link>
+              <Link
+                to="/signup"
+                className={cn(
+                  "text-app-dark-text text-sm font-medium leading-normal hover:text-app-blue transition-colors",
+                  location.pathname === '/signup' && "text-app-blue font-bold"
+                )}
+              >
+                Sign Up
+              </Link>
+            </>
+          )}
+          */}
         </div>
       </nav>
     </header>
