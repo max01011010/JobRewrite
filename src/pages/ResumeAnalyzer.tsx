@@ -163,7 +163,7 @@ const ResumeAnalyzer: React.FC = () => {
         }
 
         // Save recommendations (join array into string for storage)
-        for (const [category, recommendationTexts] of Object.entries(analysisResult.recommendationTexts)) {
+        for (const [category, recommendationTexts] of Object.entries(analysisResult.recommendations)) {
           await createAnalysisRecommendation({
             report_id: analysisReportResponse.id,
             category: category.charAt(0).toUpperCase() + category.slice(1), // Capitalize first letter
@@ -193,12 +193,14 @@ const ResumeAnalyzer: React.FC = () => {
     }
   };
 
+  const hasAnalysisResults = analysisSummary || overallAtsScore !== null;
+
   return (
     <div className="relative flex size-full min-h-screen flex-col bg-white group/design-root overflow-x-hidden" style={{ fontFamily: 'Inter, "Noto Sans", sans-serif' }}>
       <div className="layout-container flex h-full grow flex-col">
-        <div className="flex flex-col items-center px-6 py-5 flex-1 justify-center"> {/* Added justify-center */}
-          {/* Analysis Results Section - Moved to top */}
-          {(analysisSummary || overallAtsScore !== null) && (
+        <div className="flex flex-col items-center px-6 py-5 flex-1 justify-center">
+          {/* Analysis Results Section or Informative Section */}
+          {hasAnalysisResults ? (
             <div className="w-full max-w-[1000px] mt-4 p-6 border border-solid border-gray-300 rounded-md bg-gray-50 mb-6">
               <h3 className="text-app-dark-text tracking-light text-2xl font-bold leading-tight text-center mb-4">Analysis Results</h3>
               {overallAtsScore !== null && (
@@ -214,7 +216,7 @@ const ResumeAnalyzer: React.FC = () => {
                     {categoryScores && Object.entries(categoryScores).map(([category, score]) => (
                       <div key={category} className="bg-white p-4 rounded border border-gray-200 text-app-dark-text">
                         <p className="font-medium text-lg capitalize mb-2">{category.replace(/([A-Z])/g, ' $1').trim()}: <span className="text-app-blue font-bold">{score}%</span></p>
-                        <ul className="list-disc list-inside text-sm whitespace-pre-wrap"> {/* Changed to ul/li */}
+                        <ul className="list-disc list-inside text-sm whitespace-pre-wrap">
                           {recommendations?.[category as keyof AnalysisResult['recommendations']]?.map((rec, index) => (
                             <li key={index}>{rec}</li>
                           ))}
@@ -232,6 +234,21 @@ const ResumeAnalyzer: React.FC = () => {
                   </div>
                 </div>
               )}
+            </div>
+          ) : (
+            <div className="w-full max-w-[1000px] mt-4 p-6 border border-solid border-blue-200 rounded-md bg-blue-50 text-blue-800 mb-6">
+              <h3 className="text-app-dark-text tracking-light text-2xl font-bold leading-tight text-center mb-4">Welcome to the Resume Analyzer!</h3>
+              <p className="text-base mb-4">
+                Our Resume Analyzer helps you optimize your resume for Applicant Tracking Systems (ATS) and provides actionable feedback to improve your job application. Simply upload or paste your resume and provide the job description you're applying for. Our AI will then compare your resume against the job requirements.
+              </p>
+              <p className="text-base font-semibold mb-2">We score your resume across these key categories:</p>
+              <ul className="list-disc list-inside text-sm space-y-1">
+                <li><span className="font-medium">Content:</span> Focuses on clarity, impact, quantifiable results, and avoiding weak language.</li>
+                <li><span className="font-medium">Format:</span> Evaluates ATS-friendly design, page length, font size, and bullet point usage.</li>
+                <li><span className="font-medium">Optimization:</span> Checks for keyword targeting and tailoring to your experience level and industry.</li>
+                <li><span className="font-medium">Best Practices:</span> Assesses adherence to general professional standards like contact information, date formats, and LinkedIn presence.</li>
+                <li><span className="font-medium">Application Ready:</span> Provides an overall readiness assessment for the application process.</li>
+              </ul>
             </div>
           )}
 
@@ -304,7 +321,7 @@ const ResumeAnalyzer: React.FC = () => {
               <span className="truncate">{isLoading ? "Analyzing..." : "Analyze Resume"}</span>
             </Button>
           </div>
-          <AppFooter /> {/* Moved AppFooter here */}
+          <AppFooter />
         </div>
       </div>
     </div>
