@@ -11,6 +11,7 @@ async function callGibsonAiApi<T>(
   endpoint: string,
   method: string,
   body?: object,
+  queryParams?: Record<string, string | number | boolean>,
 ): Promise<T> {
   if (!GIBSON_AI_API_KEY) {
     showError("GibsonAI API key is not set. Please set VITE_GIBSON_AI_API_KEY in your .env file.");
@@ -22,6 +23,12 @@ async function callGibsonAiApi<T>(
     "Content-Type": "application/json",
   };
 
+  let url = `${GIBSON_AI_BASE_URL}${endpoint}`;
+  if (queryParams) {
+    const queryString = new URLSearchParams(queryParams as Record<string, string>).toString();
+    url = `${url}?${queryString}`;
+  }
+
   const config: RequestInit = {
     method: method,
     headers: headers,
@@ -29,7 +36,7 @@ async function callGibsonAiApi<T>(
   };
 
   try {
-    const response = await fetch(`${GIBSON_AI_BASE_URL}${endpoint}`, config);
+    const response = await fetch(url, config);
 
     if (!response.ok) {
       const errorData: GibsonAiError = await response.json();
@@ -64,7 +71,7 @@ interface ResumeIn {
   user_profile_id: number;
 }
 
-interface ResumeOut {
+export interface ResumeOut {
   id: number;
   uuid: string;
   summary: string;
@@ -78,6 +85,10 @@ export async function createResume(data: ResumeIn): Promise<ResumeOut> {
   return callGibsonAiApi<ResumeOut>("/resume", "POST", data);
 }
 
+export async function getResume(resumeId: number): Promise<ResumeOut> {
+  return callGibsonAiApi<ResumeOut>(`/resume/${resumeId}`, "GET");
+}
+
 // --- Job Description Endpoints ---
 interface JobDescriptionIn {
   company_name: string;
@@ -87,7 +98,7 @@ interface JobDescriptionIn {
   user_profile_id: number; // Add user_profile_id here
 }
 
-interface JobDescriptionOut {
+export interface JobDescriptionOut {
   id: number;
   uuid: string;
   company_name: string;
@@ -102,25 +113,45 @@ export async function createJobDescription(data: JobDescriptionIn): Promise<JobD
   return callGibsonAiApi<JobDescriptionOut>("/job-description", "POST", data);
 }
 
+export async function getJobDescription(jobDescriptionId: number): Promise<JobDescriptionOut> {
+  return callGibsonAiApi<JobDescriptionOut>(`/job-description/${jobDescriptionId}`, "GET");
+}
+
 // --- Analysis Report Endpoints ---
+export type AnalysisReportStatus = 'not_applied' | 'applied' | 'interviewing' | 'offer' | 'rejected';
+
 interface AnalysisReportIn {
   analyzed_by: number;
   job_description_id: number;
   resume_id: number;
+  status?: AnalysisReportStatus; // Add status to creation
 }
 
-interface AnalysisReportOut {
+export interface AnalysisReportOut {
   id: number;
   uuid: string;
   analyzed_by: number;
   job_description_id: number;
   resume_id: number;
+  status: AnalysisReportStatus; // Ensure status is always present
   date_created: string;
   date_updated: string | null;
 }
 
+interface AnalysisReportInUpdate {
+  status: AnalysisReportStatus;
+}
+
 export async function createAnalysisReport(data: AnalysisReportIn): Promise<AnalysisReportOut> {
   return callGibsonAiApi<AnalysisReportOut>("/analysis-report", "POST", data);
+}
+
+export async function getAnalysisReports(userProfileId: number): Promise<AnalysisReportOut[]> {
+  return callGibsonAiApi<AnalysisReportOut[]>("/analysis-report", "GET", undefined, { analyzed_by: userProfileId });
+}
+
+export async function updateAnalysisReportStatus(reportId: number, status: AnalysisReportStatus): Promise<AnalysisReportOut> {
+  return callGibsonAiApi<AnalysisReportOut>(`/analysis-report/${reportId}`, "PATCH", { status });
 }
 
 // --- Analysis Summary Endpoints ---
@@ -129,7 +160,7 @@ interface AnalysisSummaryIn {
   summary_text: string;
 }
 
-interface AnalysisSummaryOut {
+export interface AnalysisSummaryOut {
   id: number;
   uuid: string;
   report_id: number;
@@ -142,6 +173,11 @@ export async function createAnalysisSummary(data: AnalysisSummaryIn): Promise<An
   return callGibsonAiApi<AnalysisSummaryOut>("/analysis-summary", "POST", data);
 }
 
+export async function getAnalysisSummaryByReportId(reportId: number): Promise<AnalysisSummaryOut | null> {
+  const summaries = await callGibsonAiApi<AnalysisSummaryOut[]>("/analysis-summary", "GET", undefined, { report_id: reportId });
+  return summaries.length > 0 ? summaries[0] : null;
+}
+
 // --- Analysis Score Endpoints ---
 interface AnalysisScoreIn {
   report_id: number;
@@ -149,7 +185,7 @@ interface AnalysisScoreIn {
   section: string;
 }
 
-interface AnalysisScoreOut {
+export interface AnalysisScoreOut {
   id: number;
   uuid: string;
   report_id: number;
@@ -161,4 +197,9 @@ interface AnalysisScoreOut {
 
 export async function createAnalysisScore(data: AnalysisScoreIn): Promise<AnalysisScoreOut> {
   return callGibsonAiApi<AnalysisScoreOut>("/analysis-score", "POST", data);
+}
+
+export async function getAnalysisScoreByReportId(reportId: number): Promise<AnalysisScoreOut | null> {
+  const scores = await callGibsonAiApi<AnalysisScoreOut[]>("/analysis-score", "GET", undefined, { report_id: reportId });
+  return scores.length > 0 ? scores[0] : null;
 }

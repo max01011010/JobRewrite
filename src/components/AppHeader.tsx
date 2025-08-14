@@ -1,12 +1,12 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { useAuth } from '@/hooks/use-auth'; // Import useAuth
-import { Button } from '@/components/ui/button'; // Import Button for logout
+import { useAuth } from '@/hooks/use-auth';
+import { Button } from '@/components/ui/button';
 
 const AppHeader: React.FC = () => {
   const location = useLocation();
-  const { isAuthenticated, logout } = useAuth(); // Get auth state and logout function
+  const { isAuthenticated, logout } = useAuth();
 
   const handleLogout = async () => {
     await logout();
@@ -41,6 +41,15 @@ const AppHeader: React.FC = () => {
                 )}
               >
                 Resume Analyzer
+              </Link>
+              <Link
+                to="/dashboard"
+                className={cn(
+                  "text-app-dark-text text-sm font-medium leading-normal hover:text-app-blue transition-colors",
+                  location.pathname === '/dashboard' && "text-app-blue font-bold"
+                )}
+              >
+                Dashboard
               </Link>
               <a className="text-app-dark-text text-sm font-medium leading-normal" href="https://www.maxabardo.work/" target="_blank" rel="noopener noreferrer">Made for free by Max A</a>
               <Button

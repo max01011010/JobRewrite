@@ -6,11 +6,12 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import ResumeAnalyzer from "./pages/ResumeAnalyzer";
-import LoginPage from "./pages/LoginPage"; // Import LoginPage
-import SignupPage from "./pages/SignupPage"; // Import SignupPage
-import VerifyEmailPage from "./pages/VerifyEmailPage"; // Import VerifyEmailPage
-import ProtectedRoute from "./components/ProtectedRoute"; // Import ProtectedRoute
-import { AuthProvider } from "./hooks/use-auth"; // Import AuthProvider
+import LoginPage from "./pages/LoginPage";
+import SignupPage from "./pages/SignupPage";
+import VerifyEmailPage from "./pages/VerifyEmailPage";
+import ProtectedRoute from "./components/ProtectedRoute";
+import { AuthProvider } from "./hooks/use-auth";
+import DashboardPage from "./pages/DashboardPage"; // Import DashboardPage
 
 const queryClient = new QueryClient();
 
@@ -21,16 +22,17 @@ const App = () => (
       <Sonner />
       <div className="flex flex-col min-h-screen">
         <BrowserRouter>
-          <AuthProvider> {/* Wrap the entire app with AuthProvider */}
+          <AuthProvider>
             <Routes>
               <Route path="/login" element={<LoginPage />} />
               <Route path="/signup" element={<SignupPage />} />
-              <Route path="/verify-email" element={<VerifyEmailPage />} /> {/* New email verification route */}
+              <Route path="/verify-email" element={<VerifyEmailPage />} />
               
               {/* Protected Routes */}
               <Route element={<ProtectedRoute />}>
                 <Route path="/" element={<Index />} />
                 <Route path="/resume-analyzer" element={<ResumeAnalyzer />} />
+                <Route path="/dashboard" element={<DashboardPage />} /> {/* New Dashboard route */}
               </Route>
 
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
