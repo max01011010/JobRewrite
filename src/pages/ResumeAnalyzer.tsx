@@ -163,7 +163,7 @@ const ResumeAnalyzer: React.FC = () => {
         }
 
         // Save recommendations (join array into string for storage)
-        for (const [category, recommendationTexts] of Object.entries(analysisResult.recommendations)) {
+        for (const [category, recommendationTexts] of Object.entries(analysisResult.recommendationTexts)) {
           await createAnalysisRecommendation({
             report_id: analysisReportResponse.id,
             category: category.charAt(0).toUpperCase() + category.slice(1), // Capitalize first letter
@@ -196,7 +196,7 @@ const ResumeAnalyzer: React.FC = () => {
   return (
     <div className="relative flex size-full min-h-screen flex-col bg-white group/design-root overflow-x-hidden" style={{ fontFamily: 'Inter, "Noto Sans", sans-serif' }}>
       <div className="layout-container flex h-full grow flex-col">
-        <div className="flex flex-col items-center px-6 py-5 flex-1"> {/* Removed justify-center */}
+        <div className="flex flex-col items-center px-6 py-5 flex-1 justify-center"> {/* Added justify-center */}
           {/* Analysis Results Section - Moved to top */}
           {(analysisSummary || overallAtsScore !== null) && (
             <div className="w-full max-w-[1000px] mt-4 p-6 border border-solid border-gray-300 rounded-md bg-gray-50 mb-6">
