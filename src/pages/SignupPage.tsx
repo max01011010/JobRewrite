@@ -116,9 +116,9 @@ const SignupPage: React.FC = () => {
               <Button
                 type="submit"
                 className="w-full bg-app-blue text-white hover:bg-app-blue/90"
-                disabled={isLoading}
+                disabled={true} {/* Temporarily disabled */}
               >
-                {isLoading ? "Signing up..." : "Sign Up"}
+                Sign Up (Temporarily Disabled)
               </Button>
             </form>
             <p className="text-center text-sm text-gray-600">
