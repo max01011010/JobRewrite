@@ -22,30 +22,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const isAuthenticated = !!user;
 
   const fetchUser = useCallback(async () => {
+    console.log("Auth: fetchUser called. Setting isLoading to true.");
     setIsLoading(true); // Set loading true when fetching user
     try {
       const data = await authClient.me();
       setUser(data.user);
-      console.log("fetchUser completed. User:", data.user, "isAuthenticated:", !!data.user);
+      console.log("Auth: fetchUser successful. User:", data.user, "isAuthenticated:", !!data.user);
     } catch (error) {
-      console.error("Failed to fetch user:", error);
+      console.error("Auth: Failed to fetch user:", error);
       setUser(null);
     } finally {
       setIsLoading(false); // Set loading false after fetch attempt
-      console.log("fetchUser finally. isLoading:", false);
+      console.log("Auth: fetchUser finished. isLoading:", false);
     }
   }, []);
 
   useEffect(() => {
+    console.log("Auth: AuthProvider mounted. Initial fetchUser.");
     fetchUser();
   }, [fetchUser]);
 
   const login = useCallback(async (email: string, password: string) => {
     let toastId: string | number | undefined;
+    console.log("Auth: login function called.");
     try {
       toastId = showLoading("Logging in...");
       await authClient.login({ email, password });
-      console.log("authClient.login successful. Now fetching user...");
+      console.log("Auth: authClient.login successful. Now calling fetchUser to update state.");
       await fetchUser(); // Fetch user details after successful login
       showSuccess("Logged in successfully!");
     } catch (error) {
@@ -55,11 +58,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       throw error;
     } finally {
       if (toastId) dismissToast(toastId);
+      console.log("Auth: login function finished.");
     }
   }, [fetchUser]);
 
   const signup = useCallback(async (email: string, first_name: string, last_name: string, password: string) => {
     let toastId: string | number | undefined;
+    console.log("Auth: signup function called.");
     try {
       toastId = showLoading("Signing up...");
       await authClient.signup({ email, first_name, last_name, password });
@@ -70,11 +75,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       throw error;
     } finally {
       if (toastId) dismissToast(toastId);
+      console.log("Auth: signup function finished.");
     }
   }, []);
 
   const logout = useCallback(async () => {
     let toastId: string | number | undefined;
+    console.log("Auth: logout function called.");
     try {
       toastId = showLoading("Logging out...");
       await authClient.logout();
@@ -86,6 +93,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } finally {
       if (toastId) dismissToast(toastId);
       setIsLoading(false); // Ensure isLoading is false after logout
+      console.log("Auth: logout function finished. isLoading set to false.");
     }
   }, []);
 

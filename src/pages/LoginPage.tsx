@@ -31,16 +31,20 @@ const LoginPage: React.FC = () => {
 
   // Navigate to dashboard once authenticated and not loading
   useEffect(() => {
+    console.log("LoginPage: useEffect triggered. isAuthenticated:", isAuthenticated, "isLoading:", isLoading);
     if (isAuthenticated && !isLoading) {
+      console.log("LoginPage: Authenticated and not loading. Navigating to /dashboard.");
       navigate('/dashboard', { replace: true });
     }
   }, [isAuthenticated, isLoading, navigate]);
 
   const onSubmit = async (data: LoginFormInputs) => {
+    console.log("LoginPage: onSubmit called.");
     try {
       await login(data.email, data.password);
       // Navigation is now handled by the useEffect hook
     } catch (error) {
+      console.error("LoginPage: Login submission failed.", error);
       // Error handled by useAuth hook's showError
     }
   };
