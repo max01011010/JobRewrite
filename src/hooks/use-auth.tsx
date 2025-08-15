@@ -17,11 +17,12 @@ const authClient = new AuthClient();
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true); // Initial state is loading
 
   const isAuthenticated = !!user;
 
   const fetchUser = useCallback(async () => {
+    setIsLoading(true); // Set loading true when fetching user
     try {
       const data = await authClient.me();
       setUser(data.user);
@@ -30,7 +31,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.error("Failed to fetch user:", error);
       setUser(null);
     } finally {
-      setIsLoading(false);
+      setIsLoading(false); // Set loading false after fetch attempt
       console.log("fetchUser finally. isLoading:", false);
     }
   }, []);
@@ -42,22 +43,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = useCallback(async (email: string, password: string) => {
     let toastId: string | number | undefined;
     try {
-      setIsLoading(true);
       toastId = showLoading("Logging in...");
       await authClient.login({ email, password });
       console.log("authClient.login successful. Now fetching user...");
       await fetchUser(); // Fetch user details after successful login
       showSuccess("Logged in successfully!");
-      // Note: The `user` and `isAuthenticated` here might be stale due to closure,
-      // but `fetchUser` has already updated the actual state.
-      console.log("Login process finished. Current user state (might be stale in this log):", user, "isAuthenticated:", isAuthenticated); 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
       showError(`Login failed: ${errorMessage}`);
       setUser(null); // Ensure user is null on login failure
       throw error;
     } finally {
-      setIsLoading(false);
       if (toastId) dismissToast(toastId);
     }
   }, [fetchUser]);
@@ -65,7 +61,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signup = useCallback(async (email: string, first_name: string, last_name: string, password: string) => {
     let toastId: string | number | undefined;
     try {
-      setIsLoading(true);
       toastId = showLoading("Signing up...");
       await authClient.signup({ email, first_name, last_name, password });
       showSuccess("Sign up successful! Please log in.");
@@ -74,7 +69,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       showError(`Sign up failed: ${errorMessage}`);
       throw error;
     } finally {
-      setIsLoading(false);
       if (toastId) dismissToast(toastId);
     }
   }, []);
@@ -91,6 +85,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       showError(`Logout failed: ${errorMessage}`);
     } finally {
       if (toastId) dismissToast(toastId);
+      setIsLoading(false); // Ensure isLoading is false after logout
     }
   }, []);
 
