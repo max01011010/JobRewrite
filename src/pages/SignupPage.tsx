@@ -114,10 +114,11 @@ const SignupPage: React.FC = () => {
                 />
                 {errors.confirmPassword && <p className="text-red-500 text-sm mt-1">{errors.confirmPassword.message}</p>}
               </div>
+              {/* Temporarily disabled */}
               <Button
                 type="submit"
                 className="w-full bg-app-blue text-white hover:bg-app-blue/90"
-                disabled={true} {/* Temporarily disabled */}
+                disabled={true}
               >
                 Sign Up (Temporarily Disabled)
               </Button>

@@ -81,10 +81,10 @@ const ResumeAnalyzer: React.FC = () => {
         const extractedData = await extractResumeText(resumeFile);
         currentResumeContent = extractedData.text;
         resumeTitle = extractedData.meta.filename;
-        dismissToast(extractionToastId);
+        if (extractionToastId) dismissToast(extractionToastId);
         showSuccess("Text extracted successfully!");
       } catch (error) {
-        dismissToast(extractionToastId);
+        if (extractionToastId) dismissToast(extractionToastId);
         console.error("Error during file extraction:", error);
         showError(`Failed to extract text from file: ${error instanceof Error ? error.message : String(error)}`);
         setIsLoading(false);
@@ -116,7 +116,7 @@ const ResumeAnalyzer: React.FC = () => {
       setCategoryScores(analysisResult.categoryScores);
       setRecommendations(analysisResult.recommendations); // Set recommendations state
 
-      dismissToast(analysisToastId);
+      if (analysisToastId) dismissToast(analysisToastId);
       showSuccess("Analysis complete!");
 
       // Save to GibsonAI only if authenticated

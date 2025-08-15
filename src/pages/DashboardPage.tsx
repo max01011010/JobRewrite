@@ -15,7 +15,6 @@ import {
   JobDescriptionOut,
   AnalysisSummaryOut,
   AnalysisScoreOut,
-  AnalysisRecommendationOut,
 } from '@/utils/gibsonAiApi';
 import { showLoading, showSuccess, showError, dismissToast } from '@/utils/toast';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useSearchParams, useNavigate, Link } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { AuthClient } from '@/utils/auth-client';
 import { showLoading, showSuccess, showError, dismissToast } from '@/utils/toast';
 import { Button } from '@/components/ui/button';

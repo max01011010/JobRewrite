@@ -86,7 +86,7 @@ Rewritten Job Description:`;
         rawRewrittenText = rawRewrittenText.replace(/\[.*?\]/g, '').trim();
 
         // Split into lines and filter to keep only the structured parts
-        const lines = rawRewrittenText.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+        const lines = rawRewrittenText.split('\n').map((line: string) => line.trim()).filter((line: string) => line.length > 0);
         let filteredLines: string[] = [];
         let foundRoleTitle = false;
 
@@ -331,7 +331,7 @@ export async function analyzeResumeWithErnie(resumeText: string, jobDescription:
           }
         } catch (jsonError) {
           console.warn("AI response was not valid JSON, attempting fallback parsing:", rawContent);
-          // Fallback parsing if AI doesn't return perfect JSON (less robust for nested objects)
+          // Fallback for recommendations - try to extract as single strings and then split
           const summaryMatch = rawContent.match(/"summary":\s*"(.*?)"/s);
           const overallScoreMatch = rawContent.match(/"overallScore":\s*(\d+)/);
           const contentScoreMatch = rawContent.match(/"content":\s*(\d+)/);
@@ -340,7 +340,6 @@ export async function analyzeResumeWithErnie(resumeText: string, jobDescription:
           const bestPracticesScoreMatch = rawContent.match(/"bestPractices":\s*(\d+)/);
           const applicationReadyScoreMatch = rawContent.match(/"applicationReady":\s*(\d+)/);
 
-          // Fallback for recommendations - try to extract as single strings and then split
           const contentRecMatch = rawContent.match(/"content":\s*"(.*?)"/s);
           const formatRecMatch = rawContent.match(/"format":\s*"(.*?)"/s);
           const optimizationRecMatch = rawContent.match(/"optimization":\s*"(.*?)"/s);

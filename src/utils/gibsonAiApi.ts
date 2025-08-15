@@ -138,10 +138,6 @@ export interface AnalysisReportOut {
   date_updated: string | null;
 }
 
-interface AnalysisReportInUpdate {
-  status: AnalysisReportStatus;
-}
-
 export async function createAnalysisReport(data: AnalysisReportIn): Promise<AnalysisReportOut> {
   return callGibsonAiApi<AnalysisReportOut>("/analysis-report", "POST", data);
 }
