@@ -25,9 +25,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     console.log("Auth: fetchUser called. Setting isLoading to true.");
     setIsLoading(true); // Set loading true when fetching user
     try {
+      // Now authClient.me() directly returns User, not { user: User }
       const data = await authClient.me();
-      setUser(data.user);
-      console.log("Auth: fetchUser successful. User:", data.user, "isAuthenticated:", !!data.user);
+      setUser(data); // Set the user directly
+      console.log("Auth: fetchUser successful. User:", data, "isAuthenticated:", !!data);
     } catch (error) {
       console.error("Auth: Failed to fetch user:", error);
       setUser(null);

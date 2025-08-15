@@ -50,8 +50,9 @@ export class AuthClient {
     });
   }
 
+  // Updated me() method to directly return User
   me() {
-    return this.json<{ user: User }>("/me", { method: "GET" });
+    return this.json<User>("/me", { method: "GET" });
   }
 
   logout() {
