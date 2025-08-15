@@ -3,6 +3,12 @@ import { showError } from "./toast";
 const GIBSON_AI_API_KEY = import.meta.env.VITE_GIBSON_AI_API_KEY;
 const GIBSON_AI_BASE_URL = "https://api.gibsonai.com/v1/-";
 
+// Temporary log for debugging
+console.log("VITE_GIBSON_AI_API_KEY:", GIBSON_AI_API_KEY ? "Set" : "Not Set");
+if (!GIBSON_AI_API_KEY) {
+  console.error("GibsonAI API key is NOT set in environment. Check Vercel/Render config.");
+}
+
 interface GibsonAiError {
   detail: string | { code: number; entity?: string; field?: string; message: string }[];
 }
